@@ -51,7 +51,7 @@ const RecommendedProducts = () => {
   const [itemsPerPage] = useState(10);
 
   const getToken = () => sessionStorage.getItem("adminToken");
-  
+
 
   // Fetch recommended products
   const fetchRecommendedProducts = async () => {
@@ -510,8 +510,8 @@ const RecommendedProducts = () => {
               <div
                 key={item._id}
                 className={`bg-gradient-to-br from-[#071236] to-[#0a1445] rounded-2xl border transition-all duration-200 ${isSelected
-                    ? 'border-[#C026D3] bg-[#C026D3]/5'
-                    : 'border-white/10 hover:border-[#C026D3]/30'
+                  ? 'border-[#C026D3] bg-[#C026D3]/5'
+                  : 'border-white/10 hover:border-[#C026D3]/30'
                   }`}
               >
                 <div className="p-5">
@@ -540,6 +540,10 @@ const RecommendedProducts = () => {
                           src={product.mainImages[0]}
                           alt={product.name}
                           className="w-20 h-20 rounded-xl object-cover"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "https://placehold.co/600x800/e5e7eb/64748b?text=No+Image";
+                          }}
                         />
                       ) : (
                         <div className="w-20 h-20 rounded-xl bg-white/10 flex items-center justify-center">
@@ -561,14 +565,14 @@ const RecommendedProducts = () => {
                               SKU: {product.variants?.[0]?.sku || 'N/A'}
                             </span>
                             <span className={`text-xs px-2 py-0.5 rounded-full ${product.isActive
-                                ? 'bg-emerald-500/20 text-emerald-400'
-                                : 'bg-red-500/20 text-red-400'
+                              ? 'bg-emerald-500/20 text-emerald-400'
+                              : 'bg-red-500/20 text-red-400'
                               }`}>
                               {product.isActive ? 'Active' : 'Inactive'}
                             </span>
                             <span className={`text-xs px-2 py-0.5 rounded-full ${item.isActive !== false
-                                ? 'bg-emerald-500/20 text-emerald-400'
-                                : 'bg-red-500/20 text-red-400'
+                              ? 'bg-emerald-500/20 text-emerald-400'
+                              : 'bg-red-500/20 text-red-400'
                               }`}>
                               {item.isActive !== false ? 'On Homepage' : 'Hidden'}
                             </span>
@@ -600,8 +604,8 @@ const RecommendedProducts = () => {
                               <button
                                 onClick={() => handleToggleProduct(item._id, product.name, item.isActive)}
                                 className={`p-2 rounded-lg transition-all ${item.isActive !== false
-                                    ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400'
-                                    : 'bg-gray-500/10 hover:bg-gray-500/20 text-gray-400'
+                                  ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400'
+                                  : 'bg-gray-500/10 hover:bg-gray-500/20 text-gray-400'
                                   }`}
                                 title={item.isActive !== false ? "Hide from homepage" : "Show on homepage"}
                               >

@@ -175,7 +175,16 @@ const SingleProduct = () => {
             {product.mainImages && product.mainImages.length > 0 ? (
               <div className="grid grid-cols-2 gap-3">
                 {product.mainImages.map((img, idx) => (
-                  <img key={idx} src={img} alt={`Product ${idx}`} className="w-full h-32 rounded-xl object-cover" />
+                  <img
+                    key={idx}
+                    src={img}
+                    alt={`Product ${idx}`}
+                    className="w-full h-32 rounded-xl object-cover"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "https://placehold.co/600x800/e5e7eb/64748b?text=No+Image";
+                    }}
+                  />
                 ))}
               </div>
             ) : (
@@ -340,7 +349,16 @@ const SingleProduct = () => {
                       <p className="text-[#94A3B8] text-xs mb-2">Variant Images</p>
                       <div className="flex gap-2">
                         {variant.images.map((img, iIdx) => (
-                          <img key={iIdx} src={img} alt={`${variant.color} ${iIdx}`} className="w-16 h-16 rounded-lg object-cover" />
+                          <img
+                            key={iIdx}
+                            src={img}
+                            alt={`${variant.color} ${iIdx}`}
+                            className="w-16 h-16 rounded-lg object-cover"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "https://placehold.co/600x800/e5e7eb/64748b?text=No+Image";
+                            }}
+                          />
                         ))}
                       </div>
                     </div>

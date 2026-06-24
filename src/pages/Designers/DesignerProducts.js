@@ -418,6 +418,10 @@ const DesignerProducts = () => {
                                                                 src={product.mainImage}
                                                                 alt={product.name}
                                                                 className="w-12 h-12 rounded-lg object-cover bg-white/5"
+                                                                onError={(e) => {
+                                                                    e.target.onerror = null;
+                                                                    e.target.src = "https://placehold.co/600x800/e5e7eb/64748b?text=No+Image";
+                                                                }}
                                                             />
                                                         ) : (
                                                             <div className="w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center">
@@ -531,6 +535,10 @@ const DesignerProducts = () => {
                                                     src={product.mainImage}
                                                     alt={product.name}
                                                     className="w-full h-48 object-cover"
+                                                    onError={(e) => {
+                                                        e.target.onerror = null;
+                                                        e.target.src = "https://placehold.co/600x800/e5e7eb/64748b?text=No+Image";
+                                                    }}
                                                 />
                                             ) : (
                                                 <div className="w-full h-48 bg-white/5 flex items-center justify-center">
