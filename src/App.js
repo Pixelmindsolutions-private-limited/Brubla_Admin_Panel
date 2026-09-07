@@ -93,6 +93,10 @@ const App = () => {
           <Route path="payments" element={<ModuleUnavailable title="All Transactions" />} />
           <Route path="payments/online" element={<ModuleUnavailable title="Online Payments" />} />
           <Route path="payments/cod" element={<ModuleUnavailable title="Cash on Delivery" description="COD reconciliation requires an orders endpoint that returns a COD payment flag and reconciliation status, plus an authenticated update endpoint." />} />
+          <Route path="payments/cod/pending" element={<ModuleUnavailable title="COD Pending" />} />
+          <Route path="payments/cod/collected" element={<ModuleUnavailable title="COD Collected" />} />
+          <Route path="payments/cod/failed" element={<ModuleUnavailable title="COD Failed / Not Collected" />} />
+          <Route path="payments/cod/reconciliation" element={<ModuleUnavailable title="COD Reconciliation" />} />
           <Route path="returns" element={<ModuleUnavailable title="Return Requests" />} />
           <Route path="returns/approved" element={<ModuleUnavailable title="Approved Returns" />} />
           <Route path="returns/rejected" element={<ModuleUnavailable title="Rejected Returns" />} />

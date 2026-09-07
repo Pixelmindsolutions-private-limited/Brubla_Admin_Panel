@@ -40,6 +40,9 @@ import {
   ShieldCheck,
   Tags,
   Warehouse,
+  CheckCircle,
+  XCircle,
+  Clock
 } from "lucide-react";
 import { BsGenderNeuter } from "react-icons/bs";
 import logo from "../assets/logo.png";
@@ -72,7 +75,7 @@ const navItems = [
     label: "Products",
     icon: Boxes,
     children: [
-       {
+      {
         to: "/dashboard/products",
         label: "All Products",
         icon: Eye,
@@ -87,7 +90,7 @@ const navItems = [
         label: "All Categories",
         icon: List,
       },
-      
+
       {
         to: "/dashboard/products/recommended",
         label: "Recommended Products",
@@ -110,7 +113,7 @@ const navItems = [
       },
     ],
   },
-    {
+  {
     to: "/dashboard/orders",
     label: "Order Management",
     icon: ShoppingCart,
@@ -152,7 +155,7 @@ const navItems = [
       },
     ],
   },
-    {
+  {
     to: "/dashboard/inventory/available",
     label: "Inventory",
     icon: Warehouse,
@@ -192,7 +195,7 @@ const navItems = [
       },
     ],
   },
-    {
+  {
     to: "/dashboard/payments",
     label: "Payments",
     icon: CreditCard,
@@ -214,7 +217,34 @@ const navItems = [
       },
     ],
   },
-    {
+  {
+    to: "/dashboard/payments/cod",
+    label: "Cash on Delivery",
+    icon: DollarSign,
+    children: [
+      {
+        to: "/dashboard/payments/cod/pending",
+        label: "COD Pending",
+        icon: Clock,
+      },
+      {
+        to: "/dashboard/payments/cod/collected",
+        label: "COD Collected",
+        icon: CheckCircle,
+      },
+      {
+        to: "/dashboard/payments/cod/failed",
+        label: "COD Failed / Not Collected",
+        icon: XCircle,
+      },
+      {
+        to: "/dashboard/payments/cod/reconciliation",
+        label: "COD Reconciliation",
+        icon: RefreshCw,
+      },
+    ],
+  },
+  {
     to: "/dashboard/returns",
     label: "Returns & Refunds",
     icon: RotateCcw,
@@ -254,7 +284,7 @@ const navItems = [
       },
     ],
   },
-   {
+  {
     to: "/dashboard/shipping",
     label: "Shipping & Delivery",
     icon: Truck,
@@ -271,7 +301,7 @@ const navItems = [
     to: "/dashboard/content",
     label: "Website Content",
     icon: ImagesIcon,
-  children: [
+    children: [
       {
         to: "/dashboard/login-banners",
         label: "Login Banners",
@@ -294,7 +324,7 @@ const navItems = [
       // },
     ],
   },
-    {
+  {
     to: "/dashboard/collections",
     label: "Collections",
     icon: BookMarked,
@@ -391,7 +421,6 @@ const navItems = [
       },
     ],
   },
-
 
   // {
   //   to: "/dashboard/collections",
