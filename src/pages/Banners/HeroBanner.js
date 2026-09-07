@@ -27,7 +27,8 @@ import {
     Save,
     ArrowUp,
     ArrowDown,
-    Globe
+    Globe,
+    Edit
 } from "lucide-react";
 import {
     DragDropContext,
@@ -47,6 +48,7 @@ const HeroBanners = () => {
     const [formData, setFormData] = useState({
         type: "image",
         url: "",
+        redirectUrl: "",
         order: 0,
         isActive: true
     });
@@ -149,8 +151,8 @@ const HeroBanners = () => {
         setUploadPreview(previewUrl);
     };
 
-    // Add hero item
-    const handleAddHero = async () => {
+    // Create or update a hero item using the existing hero endpoint.
+    const handleSaveHero = async () => {
         if (!formData.url && !uploadFile) {
             Swal.fire({
                 title: "Error!",
@@ -165,6 +167,9 @@ const HeroBanners = () => {
         const submitData = new FormData();
         submitData.append("type", formData.type);
         submitData.append("order", formData.order.toString());
+        // The existing API already uses redirectUrl. Send an empty value on edit too,
+        // so an administrator can explicitly remove a previously configured link.
+        submitData.append("redirectUrl", formData.redirectUrl.trim());
 
         if (formData.type === 'youtube' || formData.type === 'link') {
             submitData.append("url", formData.url);
@@ -177,7 +182,12 @@ const HeroBanners = () => {
         try {
             setSubmitting(true);
             const token = getToken();
-            const response = await axios.post(`${API}/homepage/hero/add`, submitData, {
+            const response = await axios({
+                method: editingItem ? "put" : "post",
+                url: editingItem
+                    ? `${API}/homepage/hero/${editingItem._id}`
+                    : `${API}/homepage/hero/add`,
+                data: submitData,
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "multipart/form-data",
@@ -187,7 +197,7 @@ const HeroBanners = () => {
             if (response.data.success) {
                 Swal.fire({
                     title: "Success!",
-                    text: "Hero banner added successfully",
+                    text: `Hero banner ${editingItem ? "updated" : "added"} successfully`,
                     icon: "success",
                     background: "#071236",
                     color: "#FFFFFF",
@@ -384,11 +394,26 @@ const HeroBanners = () => {
         setFormData({
             type: "image",
             url: "",
+            redirectUrl: "",
             order: heroItems.length,
             isActive: true
         });
         setUploadFile(null);
         setUploadPreview(null);
+    };
+
+    const openEditModal = (item) => {
+        setEditingItem(item);
+        setFormData({
+            type: item.type || "image",
+            url: item.url || "",
+            redirectUrl: item.redirectUrl || "",
+            order: item.order ?? 0,
+            isActive: item.isActive !== false,
+        });
+        setUploadFile(null);
+        setUploadPreview(item.type === "image" || item.type === "video" ? item.url : null);
+        setShowAddModal(true);
     };
 
     // Get type icon
@@ -610,6 +635,11 @@ const HeroBanners = () => {
                                                                                 {item.url.substring(0, 50)}...
                                                                             </span>
                                                                         )}
+                                                                        {item.redirectUrl && (
+                                                                            <span className="text-xs text-[#94A3B8] flex items-center gap-1">
+                                                                                <Link size={12} /> Redirect: {item.redirectUrl}
+                                                                            </span>
+                                                                        )}
                                                                         {item.filename && (
                                                                             <span className="text-xs text-[#94A3B8]">
                                                                                 File: {item.filename}
@@ -651,6 +681,10 @@ const HeroBanners = () => {
                                                                         {item.isActive ? <Eye size={16} /> : <EyeOff size={16} />}
                                                                     </button>
 
+                                                                    <button onClick={() => openEditModal(item)} className="p-2 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 transition-all" title="Edit banner">
+                                                                        <Edit size={16} />
+                                                                    </button>
+
                                                                     {/* Delete Button */}
                                                                     <button
                                                                         onClick={() => handleDeleteHero(item._id, item.type)}
@@ -681,7 +715,7 @@ const HeroBanners = () => {
                     <div className="bg-[#071236] rounded-2xl border border-white/10 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                         <div className="sticky top-0 bg-[#071236] flex items-center justify-between p-6 border-b border-white/10">
                             <div>
-                                <h2 className="text-xl font-bold text-white">Add Hero Banner</h2>
+                                <h2 className="text-xl font-bold text-white">{editingItem ? "Edit Hero Banner" : "Add Hero Banner"}</h2>
                                 <p className="text-[#94A3B8] text-sm mt-1">
                                     Add a new banner to the homepage hero carousel
                                 </p>
@@ -820,6 +854,12 @@ const HeroBanners = () => {
                                 </div>
                             )}
 
+                            <div>
+                                <label className="block text-sm font-semibold text-white mb-2">Link / Redirect URL <span className="text-[#94A3B8] font-normal">(optional)</span></label>
+                                <input type="url" name="redirectUrl" value={formData.redirectUrl} onChange={handleInputChange} className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50 transition-all" placeholder="https://example.com/page" />
+                                <p className="mt-1 text-xs text-[#94A3B8]">Leave blank to keep the banner non-clickable.</p>
+                            </div>
+
                             {/* Order */}
                             <div>
                                 <label className="block text-sm font-semibold text-white mb-2">
@@ -858,19 +898,19 @@ const HeroBanners = () => {
                                 Cancel
                             </button>
                             <button
-                                onClick={handleAddHero}
+                                onClick={handleSaveHero}
                                 disabled={submitting}
                                 className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#C026D3] to-[#2563EB] text-white font-semibold hover:shadow-lg transition-all disabled:opacity-50"
                             >
                                 {submitting ? (
                                     <>
                                         <Loader size={18} className="animate-spin" />
-                                        Adding...
+                                        {editingItem ? "Updating..." : "Adding..."}
                                     </>
                                 ) : (
                                     <>
                                         <Plus size={18} />
-                                        Add Banner
+                                        {editingItem ? "Update Banner" : "Add Banner"}
                                     </>
                                 )}
                             </button>

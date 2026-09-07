@@ -27,6 +27,8 @@ import SingleDesigner from "./pages/Designers/SingleDesigner";
 import PendingDesigners from "./pages/Designers/PendingDesigners";
 import DesignerProducts from "./pages/Designers/DesignerProducts";
 import PendingDesignerProducts from "./pages/Designers/PendingDesignerProducts";
+import AvailableStock from "./pages/Inventory/AvailableStock";
+import ModuleUnavailable from "./pages/ModuleUnavailable";
 
 
 const App = () => {
@@ -61,6 +63,8 @@ const App = () => {
           <Route path="products/:id" element={<SingleProduct />} />
           <Route path="products/recommended" element={<RecommendedProducts />} />
           <Route path="products/latest" element={<LatestProducts />} />
+          <Route path="products/brands" element={<ModuleUnavailable title="Brands" />} />
+          <Route path="products/reviews" element={<ModuleUnavailable title="Product Reviews" />} />
 
           <Route path="collections" element={<CollectionManager />} />
           <Route path="collections/products/:collectionId" element={<CollectionProducts />} />
@@ -69,6 +73,37 @@ const App = () => {
           <Route path="login-banners" element={<LoginBanners />} />
           <Route path="hero-banners" element={<HeroBanners />} />
           <Route path="ad-banners" element={<AdBanners />} />
+
+          <Route path="inventory/available" element={<AvailableStock />} />
+          <Route path="inventory/low-stock" element={<ModuleUnavailable title="Low Stock" />} />
+          <Route path="inventory/out-of-stock" element={<ModuleUnavailable title="Out of Stock" />} />
+          <Route path="inventory/updates" element={<ModuleUnavailable title="Stock Updates" />} />
+
+          <Route path="customers" element={<AllUsers />} />
+          <Route path="customers/:id" element={<SingleUser />} />
+
+          <Route path="orders" element={<ModuleUnavailable title="All Orders" />} />
+          <Route path="orders/tracking" element={<ModuleUnavailable title="Order Tracking" />} />
+          <Route path="orders/pending" element={<ModuleUnavailable title="Pending Orders" />} />
+          <Route path="orders/processing" element={<ModuleUnavailable title="Processing Orders" />} />
+          <Route path="orders/shipped" element={<ModuleUnavailable title="Shipped Orders" />} />
+          <Route path="orders/delivered" element={<ModuleUnavailable title="Delivered Orders" />} />
+          <Route path="orders/cancelled" element={<ModuleUnavailable title="Cancelled Orders" />} />
+
+          <Route path="payments" element={<ModuleUnavailable title="All Transactions" />} />
+          <Route path="payments/online" element={<ModuleUnavailable title="Online Payments" />} />
+          <Route path="payments/cod" element={<ModuleUnavailable title="Cash on Delivery" description="COD reconciliation requires an orders endpoint that returns a COD payment flag and reconciliation status, plus an authenticated update endpoint." />} />
+          <Route path="returns" element={<ModuleUnavailable title="Return Requests" />} />
+          <Route path="returns/approved" element={<ModuleUnavailable title="Approved Returns" />} />
+          <Route path="returns/rejected" element={<ModuleUnavailable title="Rejected Returns" />} />
+          <Route path="returns/refunds" element={<ModuleUnavailable title="Refund Status" />} />
+          <Route path="offers" element={<ModuleUnavailable title="Offers & Discounts" />} />
+          <Route path="shipping" element={<ModuleUnavailable title="Shipping & Delivery" />} />
+          <Route path="content" element={<ModuleUnavailable title="Website Content Management" />} />
+          <Route path="reports" element={<ModuleUnavailable title="Reports & Analytics" />} />
+          <Route path="notifications" element={<ModuleUnavailable title="Notifications" />} />
+          <Route path="admin-management" element={<ModuleUnavailable title="Admin & Employee Management" />} />
+          <Route path="settings" element={<ModuleUnavailable title="Settings" />} />
 
         </Route>
       </Route>
