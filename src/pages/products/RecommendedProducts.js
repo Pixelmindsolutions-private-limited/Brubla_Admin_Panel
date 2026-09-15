@@ -19,7 +19,7 @@ import {
   Image as ImageIcon,
   TrendingUp,
   Package,
-  DollarSign,
+  IndianRupee,
   ShoppingBag,
   Tag,
   ArrowUp,
@@ -29,11 +29,7 @@ import {
   CheckCircle
 } from "lucide-react";
 
-import {
-  DragDropContext,
-  Droppable,
-  Draggable
-} from "@hello-pangea/dnd";
+
 
 const API = "http://31.97.228.17:4077/api/admin";
 
@@ -450,10 +446,10 @@ const RecommendedProducts = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[#94A3B8] text-sm">Avg. Price</p>
-              <p className="text-3xl font-bold text-white mt-1">${stats.avgPrice.toFixed(2)}</p>
+              <p className="text-3xl font-bold text-white mt-1">₹{stats.avgPrice.toFixed(2)}</p>
             </div>
             <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
-              <DollarSign size={22} className="text-purple-400" />
+              <IndianRupee size={22} className="text-purple-400" />
             </div>
           </div>
         </div>
@@ -587,11 +583,11 @@ const RecommendedProducts = () => {
                           <div className="text-right">
                             {product.displayPrice !== product.displayActualPrice ? (
                               <>
-                                <span className="text-[#94A3B8] text-sm line-through">${product.displayActualPrice}</span>
-                                <span className="text-white font-bold text-lg ml-2">${product.displayPrice}</span>
+                                <span className="text-[#94A3B8] text-sm line-through">₹{product.displayActualPrice}</span>
+                                <span className="text-white font-bold text-lg ml-2">₹{product.displayPrice}</span>
                               </>
                             ) : (
-                              <span className="text-white font-bold text-lg">${product.displayPrice}</span>
+                              <span className="text-white font-bold text-lg">₹{product.displayPrice}</span>
                             )}
                             <p className="text-xs text-[#94A3B8] mt-1">
                               Stock: {product.totalStock || 0}

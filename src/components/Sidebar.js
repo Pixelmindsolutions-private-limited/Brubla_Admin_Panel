@@ -22,7 +22,7 @@ import {
   Bell,
   ArrowBigLeft,
   LogOut,
-  DollarSign,
+  IndianRupee,
   Boxes,
   Apple,
   Leaf,
@@ -213,14 +213,14 @@ const navItems = [
       {
         to: "/dashboard/payments/cod",
         label: "Cash on Delivery",
-        icon: DollarSign,
+        icon: IndianRupee,
       },
     ],
   },
   {
     to: "/dashboard/payments/cod",
     label: "Cash on Delivery",
-    icon: DollarSign,
+    icon: IndianRupee,
     children: [
       {
         to: "/dashboard/payments/cod/pending",
@@ -267,7 +267,7 @@ const navItems = [
       {
         to: "/dashboard/returns/refunds",
         label: "Refund Status",
-        icon: DollarSign,
+        icon: IndianRupee,
       },
     ],
   },
@@ -585,7 +585,7 @@ const navItems = [
   //     {
   //       to: "/dashboard/payments/cod",
   //       label: "Cash on Delivery",
-  //       icon: DollarSign,
+  //       icon: IndianRupee,
   //     },
   //   ],
   // },
@@ -613,7 +613,7 @@ const navItems = [
   //     {
   //       to: "/dashboard/returns/refunds",
   //       label: "Refund Status",
-  //       icon: DollarSign,
+  //       icon: IndianRupee,
   //     },
   //   ],
   // },

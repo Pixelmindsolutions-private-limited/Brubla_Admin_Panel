@@ -48,7 +48,7 @@ const HeroBanners = () => {
     const [formData, setFormData] = useState({
         type: "image",
         url: "",
-        redirectUrl: "",
+        redirectUrl: "", // This will map to `redirectionLink` in the API
         order: 0,
         isActive: true
     });
@@ -167,9 +167,8 @@ const HeroBanners = () => {
         const submitData = new FormData();
         submitData.append("type", formData.type);
         submitData.append("order", formData.order.toString());
-        // The existing API already uses redirectUrl. Send an empty value on edit too,
-        // so an administrator can explicitly remove a previously configured link.
-        submitData.append("redirectUrl", formData.redirectUrl.trim());
+        // Send redirectionLink (backend expects this field)
+        submitData.append("redirectionLink", formData.redirectUrl.trim());
 
         if (formData.type === 'youtube' || formData.type === 'link') {
             submitData.append("url", formData.url);
@@ -177,11 +176,6 @@ const HeroBanners = () => {
             submitData.append("media", uploadFile);
         } else if (formData.url) {
             submitData.append("url", formData.url);
-        }
-
-        // Add redirectUrl if provided
-        if (formData.redirectUrl && formData.redirectUrl.trim()) {
-            submitData.append("redirectUrl", formData.redirectUrl);
         }
 
         try {
@@ -217,78 +211,6 @@ const HeroBanners = () => {
             Swal.fire({
                 title: "Error!",
                 text: error.response?.data?.message || "Failed to add hero banner",
-                icon: "error",
-                background: "#071236",
-                color: "#FFFFFF",
-                confirmButtonColor: "#C026D3",
-            });
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
-    // Update hero item
-    const handleUpdateHero = async () => {
-        if (!formData.url && !uploadFile) {
-            Swal.fire({
-                title: "Error!",
-                text: "Please provide a URL or upload a file",
-                icon: "error",
-                background: "#071236",
-                color: "#FFFFFF",
-            });
-            return;
-        }
-
-        const submitData = new FormData();
-        submitData.append("type", formData.type);
-        submitData.append("order", formData.order.toString());
-
-        if (formData.type === 'youtube' || formData.type === 'link') {
-            submitData.append("url", formData.url);
-        } else if (uploadFile) {
-            submitData.append("media", uploadFile);
-        } else if (formData.url) {
-            submitData.append("url", formData.url);
-        }
-
-        // Add redirectUrl if provided
-        if (formData.redirectUrl && formData.redirectUrl.trim()) {
-            submitData.append("redirectUrl", formData.redirectUrl);
-        }
-
-        try {
-            setSubmitting(true);
-            const token = getToken();
-            const response = await axios.put(
-                `${API}/homepage/hero/${editingItem._id}`,
-                submitData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "multipart/form-data",
-                    },
-                }
-            );
-
-            if (response.data.success) {
-                Swal.fire({
-                    title: "Success!",
-                    text: "Hero banner updated successfully",
-                    icon: "success",
-                    background: "#071236",
-                    color: "#FFFFFF",
-                    timer: 1500,
-                    showConfirmButton: false,
-                });
-                resetModal();
-                fetchHeroItems();
-            }
-        } catch (error) {
-            console.error("Error updating hero:", error);
-            Swal.fire({
-                title: "Error!",
-                text: error.response?.data?.message || "Failed to update hero banner",
                 icon: "error",
                 background: "#071236",
                 color: "#FFFFFF",
@@ -484,7 +406,7 @@ const HeroBanners = () => {
         setFormData({
             type: item.type || "image",
             url: item.url || "",
-            redirectUrl: item.redirectUrl || "",
+            redirectUrl: item.redirectionLink || "", // Read from redirectionLink
             order: item.order ?? 0,
             isActive: item.isActive !== false,
         });
@@ -712,9 +634,9 @@ const HeroBanners = () => {
                                                                                 {item.url.substring(0, 50)}...
                                                                             </span>
                                                                         )}
-                                                                        {item.redirectUrl && (
+                                                                        {item.redirectionLink && (
                                                                             <span className="text-xs text-[#94A3B8] flex items-center gap-1">
-                                                                                <Link size={12} /> Redirect: {item.redirectUrl}
+                                                                                <Link size={12} /> Redirect: {item.redirectionLink}
                                                                             </span>
                                                                         )}
                                                                         {item.filename && (
@@ -786,7 +708,7 @@ const HeroBanners = () => {
                 </DragDropContext>
             )}
 
-            {/* Add Hero Modal */}
+            {/* Add/Edit Hero Modal */}
             {showAddModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
                     <div className="bg-[#071236] rounded-2xl border border-white/10 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -931,10 +853,22 @@ const HeroBanners = () => {
                                 </div>
                             )}
 
+                            {/* Redirect URL / Link */}
                             <div>
-                                <label className="block text-sm font-semibold text-white mb-2">Link / Redirect URL <span className="text-[#94A3B8] font-normal">(optional)</span></label>
-                                <input type="url" name="redirectUrl" value={formData.redirectUrl} onChange={handleInputChange} className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50 transition-all" placeholder="https://example.com/page" />
-                                <p className="mt-1 text-xs text-[#94A3B8]">Leave blank to keep the banner non-clickable.</p>
+                                <label className="block text-sm font-semibold text-white mb-2">
+                                    Redirect URL <span className="text-[#94A3B8] font-normal">(optional)</span>
+                                </label>
+                                <input
+                                    type="url"
+                                    name="redirectUrl"
+                                    value={formData.redirectUrl}
+                                    onChange={handleInputChange}
+                                    className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50 transition-all"
+                                    placeholder="https://example.com/page"
+                                />
+                                <p className="text-[#94A3B8] text-xs mt-2">
+                                    When users click on this banner, they will be redirected to this link. Leave blank to keep the banner non-clickable.
+                                </p>
                             </div>
 
                             {/* Order */}
@@ -950,24 +884,6 @@ const HeroBanners = () => {
                                     className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50 transition-all"
                                     placeholder="Order number (lower appears first)"
                                 />
-                            </div>
-
-                            {/* Redirect URL / Link */}
-                            <div>
-                                <label className="block text-sm font-semibold text-white mb-2">
-                                    Link / URL (Optional)
-                                </label>
-                                <input
-                                    type="text"
-                                    name="redirectUrl"
-                                    value={formData.redirectUrl}
-                                    onChange={handleInputChange}
-                                    className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50 transition-all"
-                                    placeholder="https://example.com (leave empty if no redirect needed)"
-                                />
-                                <p className="text-[#94A3B8] text-xs mt-2">
-                                    Admin can enter a redirect URL. When users click on this banner, they will be redirected to this link.
-                                </p>
                             </div>
 
                             {/* Active Status */}

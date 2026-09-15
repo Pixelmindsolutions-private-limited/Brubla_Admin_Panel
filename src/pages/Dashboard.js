@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   Users,
   ShoppingCart,
-  DollarSign,
+  IndianRupee,
   Activity,
   TrendingUp,
   TrendingDown,
@@ -52,8 +52,8 @@ const Dashboard = () => {
     },
     {
       title: "Revenue",
-      value: `$${stats.totalRevenue.toLocaleString()}`,
-      icon: <DollarSign size={22} />,
+      value: `${stats.totalRevenue.toLocaleString()}`,
+      icon: <IndianRupee size={22} />,
       growth: "+18.4%",
       positive: true,
       gradient: "from-emerald-500 to-teal-500",

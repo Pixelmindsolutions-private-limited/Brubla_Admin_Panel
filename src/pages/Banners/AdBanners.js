@@ -18,7 +18,7 @@ import {
   EyeOff,
   Upload,
   Tag,
-  DollarSign,
+  IndianRupee,
   Calendar,
   ArrowUp,
   ArrowDown,
@@ -27,7 +27,8 @@ import {
   ShoppingBag,
   Percent,
   Clock,
-  TrendingUp
+  TrendingUp,
+  Link as LinkIcon
 } from "lucide-react";
 import {
     DragDropContext,
@@ -49,6 +50,7 @@ const AdBanners = () => {
     subtitle: "",
     tag: "",
     buttonText: "Shop Now",
+    redirectionLink: "",
     order: 0,
     isActive: true
   });
@@ -169,6 +171,7 @@ const AdBanners = () => {
     submitData.append("subtitle", formData.subtitle);
     submitData.append("tag", formData.tag);
     submitData.append("buttonText", formData.buttonText);
+    submitData.append("redirectionLink", formData.redirectionLink || "");
     submitData.append("order", formData.order.toString());
     if (imageFile) {
       submitData.append("image", imageFile);
@@ -230,6 +233,7 @@ const AdBanners = () => {
     submitData.append("subtitle", formData.subtitle);
     submitData.append("tag", formData.tag);
     submitData.append("buttonText", formData.buttonText);
+    submitData.append("redirectionLink", formData.redirectionLink || "");
     submitData.append("order", formData.order.toString());
     if (imageFile) {
       submitData.append("image", imageFile);
@@ -448,6 +452,7 @@ const AdBanners = () => {
       subtitle: banner.subtitle || "",
       tag: banner.tag || "",
       buttonText: banner.buttonText || "Shop Now",
+      redirectionLink: banner.redirectionLink || "",
       order: banner.order,
       isActive: banner.isActive
     });
@@ -465,6 +470,7 @@ const AdBanners = () => {
       subtitle: "",
       tag: "",
       buttonText: "Shop Now",
+      redirectionLink: "",
       order: banners.length,
       isActive: true
     });
@@ -683,6 +689,15 @@ const AdBanners = () => {
                                         <ShoppingBag size={12} />
                                         {banner.buttonText || 'Shop Now'}
                                       </span>
+                                      {banner.redirectionLink && (
+                                        <span
+                                          className="text-xs flex items-center gap-1 text-[#94A3B8] max-w-[200px] truncate"
+                                          title={banner.redirectionLink}
+                                        >
+                                          <LinkIcon size={12} />
+                                          {banner.redirectionLink}
+                                        </span>
+                                      )}
                                       <span className="text-xs flex items-center gap-1 text-[#94A3B8]">
                                         <Calendar size={12} />
                                         {new Date(banner.createdAt).toLocaleDateString()}
@@ -880,6 +895,27 @@ const AdBanners = () => {
                     placeholder="Shop Now"
                   />
                 </div>
+              </div>
+
+              {/* Redirection Link */}
+              <div>
+                <label className="block text-sm font-semibold text-white mb-2">
+                  Redirection Link
+                </label>
+                <div className="relative">
+                  <LinkIcon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+                  <input
+                    type="text"
+                    name="redirectionLink"
+                    value={formData.redirectionLink}
+                    onChange={handleInputChange}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50 transition-all"
+                    placeholder="e.g., /products or https://example.com"
+                  />
+                </div>
+                <p className="text-xs text-[#94A3B8] mt-1">
+                  Where the banner/CTA button should redirect (internal path or full URL). Leave empty to use default.
+                </p>
               </div>
 
               {/* Order */}

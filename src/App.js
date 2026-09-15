@@ -28,7 +28,36 @@ import PendingDesigners from "./pages/Designers/PendingDesigners";
 import DesignerProducts from "./pages/Designers/DesignerProducts";
 import PendingDesignerProducts from "./pages/Designers/PendingDesignerProducts";
 import AvailableStock from "./pages/Inventory/AvailableStock";
-import ModuleUnavailable from "./pages/ModuleUnavailable";
+import AllOrders from "./pages/AllOrders";
+import PendingOrders from "./pages/PendingOrders";
+import OrderTracking from "./pages/Orders/OrderTracking";
+import ProcessingOrders from "./pages/Orders/ProcessingOrders";
+import ShippedOrders from "./pages/Orders/ShippedOrders";
+import DeliveredOrders from "./pages/Orders/DeliveredOrders";
+import CancelledOrders from "./pages/Orders/CancelledOrders";
+import ProductBrands from "./pages/products/ProductBrands";
+import ProductReviews from "./pages/products/ProductReviews";
+import LowStock from "./pages/Inventory/LowStock";
+import OutOfStock from "./pages/Inventory/OutOfStock";
+import StockUpdates from "./pages/Inventory/StockUpdates";
+import AllTransactions from "./pages/Payments/AllTransactions";
+import OnlinePayments from "./pages/Payments/OnlinePayments";
+import CashOnDelivery from "./pages/Payments/CashOnDelivery";
+import CODPending from "./pages/Payments/CODPending";
+import CODCollected from "./pages/Payments/CODCollected";
+import CODFailed from "./pages/Payments/CODFailed";
+import CODReconciliation from "./pages/Payments/CODReconciliation";
+import ReturnRequests from "./pages/Returns/ReturnRequests";
+import ApprovedReturns from "./pages/Returns/ApprovedReturns";
+import RejectedReturns from "./pages/Returns/RejectedReturns";
+import RefundStatus from "./pages/Returns/RefundStatus";
+import OffersDiscounts from "./pages/OffersDiscounts";
+import ShippingDelivery from "./pages/ShippingDelivery";
+import WebsiteContentManagement from "./pages/WebsiteContentManagement";
+import ReportsAnalytics from "./pages/ReportsAnalytics";
+import Notifications from "./pages/Notifications";
+import AdminEmployeeManagement from "./pages/AdminEmployeeManagement";
+import Settings from "./pages/Settings";
 
 
 const App = () => {
@@ -63,8 +92,8 @@ const App = () => {
           <Route path="products/:id" element={<SingleProduct />} />
           <Route path="products/recommended" element={<RecommendedProducts />} />
           <Route path="products/latest" element={<LatestProducts />} />
-          <Route path="products/brands" element={<ModuleUnavailable title="Brands" />} />
-          <Route path="products/reviews" element={<ModuleUnavailable title="Product Reviews" />} />
+          <Route path="products/brands" element={<ProductBrands />} />
+          <Route path="products/reviews" element={<ProductReviews />} />
 
           <Route path="collections" element={<CollectionManager />} />
           <Route path="collections/products/:collectionId" element={<CollectionProducts />} />
@@ -75,39 +104,39 @@ const App = () => {
           <Route path="ad-banners" element={<AdBanners />} />
 
           <Route path="inventory/available" element={<AvailableStock />} />
-          <Route path="inventory/low-stock" element={<ModuleUnavailable title="Low Stock" />} />
-          <Route path="inventory/out-of-stock" element={<ModuleUnavailable title="Out of Stock" />} />
-          <Route path="inventory/updates" element={<ModuleUnavailable title="Stock Updates" />} />
+          <Route path="inventory/low-stock" element={<LowStock />} />
+          <Route path="inventory/out-of-stock" element={<OutOfStock />} />
+          <Route path="inventory/updates" element={<StockUpdates />} />
 
           <Route path="customers" element={<AllUsers />} />
           <Route path="customers/:id" element={<SingleUser />} />
 
-          <Route path="orders" element={<ModuleUnavailable title="All Orders" />} />
-          <Route path="orders/tracking" element={<ModuleUnavailable title="Order Tracking" />} />
-          <Route path="orders/pending" element={<ModuleUnavailable title="Pending Orders" />} />
-          <Route path="orders/processing" element={<ModuleUnavailable title="Processing Orders" />} />
-          <Route path="orders/shipped" element={<ModuleUnavailable title="Shipped Orders" />} />
-          <Route path="orders/delivered" element={<ModuleUnavailable title="Delivered Orders" />} />
-          <Route path="orders/cancelled" element={<ModuleUnavailable title="Cancelled Orders" />} />
+          <Route path="orders" element={<AllOrders title="All Orders" />} />
+          <Route path="orders/tracking" element={<OrderTracking title="Order Tracking" />} />
+          <Route path="orders/pending" element={<PendingOrders title="Pending Orders" />} />
+          <Route path="orders/processing" element={<ProcessingOrders title="Processing Orders" />} />
+          <Route path="orders/shipped" element={<ShippedOrders title="Shipped Orders" />} />
+          <Route path="orders/delivered" element={<DeliveredOrders title="Delivered Orders" />} />
+          <Route path="orders/cancelled" element={<CancelledOrders title="Cancelled Orders" />} />
 
-          <Route path="payments" element={<ModuleUnavailable title="All Transactions" />} />
-          <Route path="payments/online" element={<ModuleUnavailable title="Online Payments" />} />
-          <Route path="payments/cod" element={<ModuleUnavailable title="Cash on Delivery" description="COD reconciliation requires an orders endpoint that returns a COD payment flag and reconciliation status, plus an authenticated update endpoint." />} />
-          <Route path="payments/cod/pending" element={<ModuleUnavailable title="COD Pending" />} />
-          <Route path="payments/cod/collected" element={<ModuleUnavailable title="COD Collected" />} />
-          <Route path="payments/cod/failed" element={<ModuleUnavailable title="COD Failed / Not Collected" />} />
-          <Route path="payments/cod/reconciliation" element={<ModuleUnavailable title="COD Reconciliation" />} />
-          <Route path="returns" element={<ModuleUnavailable title="Return Requests" />} />
-          <Route path="returns/approved" element={<ModuleUnavailable title="Approved Returns" />} />
-          <Route path="returns/rejected" element={<ModuleUnavailable title="Rejected Returns" />} />
-          <Route path="returns/refunds" element={<ModuleUnavailable title="Refund Status" />} />
-          <Route path="offers" element={<ModuleUnavailable title="Offers & Discounts" />} />
-          <Route path="shipping" element={<ModuleUnavailable title="Shipping & Delivery" />} />
-          <Route path="content" element={<ModuleUnavailable title="Website Content Management" />} />
-          <Route path="reports" element={<ModuleUnavailable title="Reports & Analytics" />} />
-          <Route path="notifications" element={<ModuleUnavailable title="Notifications" />} />
-          <Route path="admin-management" element={<ModuleUnavailable title="Admin & Employee Management" />} />
-          <Route path="settings" element={<ModuleUnavailable title="Settings" />} />
+          <Route path="payments" element={<AllTransactions />} />
+          <Route path="payments/online" element={<OnlinePayments />} />
+          <Route path="payments/cod" element={<CashOnDelivery />} />
+          <Route path="payments/cod/pending" element={<CODPending />} />
+          <Route path="payments/cod/collected" element={<CODCollected />} />
+          <Route path="payments/cod/failed" element={<CODFailed />} />
+          <Route path="payments/cod/reconciliation" element={<CODReconciliation />} />
+          <Route path="returns" element={<ReturnRequests />} />
+          <Route path="returns/approved" element={<ApprovedReturns />} />
+          <Route path="returns/rejected" element={<RejectedReturns />} />
+          <Route path="returns/refunds" element={<RefundStatus />} />
+          <Route path="offers" element={<OffersDiscounts />} />
+          <Route path="shipping" element={<ShippingDelivery />} />
+          <Route path="content" element={<WebsiteContentManagement />} />
+          <Route path="reports" element={<ReportsAnalytics />} />
+          <Route path="notifications" element={<Notifications />} />
+          <Route path="admin-management" element={<AdminEmployeeManagement />} />
+          <Route path="settings" element={<Settings />} />
 
         </Route>
       </Route>

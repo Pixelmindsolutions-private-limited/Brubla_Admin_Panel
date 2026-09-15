@@ -8,8 +8,7 @@ import {
   Edit,
   Trash2,
   Tag,
-  MapPin,
-  DollarSign,
+  IndianRupee,
   ShoppingBag,
   CheckCircle,
   XCircle,
@@ -286,17 +285,17 @@ const SingleProduct = () => {
           {/* Pricing */}
           <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <DollarSign size={18} className="text-[#C026D3]" />
+              <span className="text-[#C026D3] text-lg">₹</span>
               Pricing Information
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-white/5 rounded-xl p-4 text-center">
                 <p className="text-[#94A3B8] text-sm">Display Price</p>
-                <p className="text-2xl font-bold text-[#C026D3]">${product.displayPrice || product.variants?.[0]?.price}</p>
+                <p className="text-2xl font-bold text-[#C026D3]">₹{product.displayPrice || product.variants?.[0]?.price}</p>
               </div>
               <div className="bg-white/5 rounded-xl p-4 text-center">
                 <p className="text-[#94A3B8] text-sm">Actual Price</p>
-                <p className="text-2xl font-bold text-white">${product.displayActualPrice || product.variants?.[0]?.price}</p>
+                <p className="text-2xl font-bold text-white">₹{product.displayActualPrice || product.variants?.[0]?.price}</p>
               </div>
               <div className="bg-white/5 rounded-xl p-4 text-center">
                 <p className="text-[#94A3B8] text-sm">Discount</p>
@@ -321,11 +320,11 @@ const SingleProduct = () => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
                     <div>
                       <p className="text-[#94A3B8] text-xs">Price</p>
-                      <p className="text-white">${variant.price}</p>
+                      <p className="text-white">₹{variant.price}</p>
                     </div>
                     <div>
                       <p className="text-[#94A3B8] text-xs">Discount Price</p>
-                      <p className="text-white">{variant.discountPrice ? `$${variant.discountPrice}` : "N/A"}</p>
+                      <p className="text-white">₹{variant.discountPrice ? variant.discountPrice : "N/A"}</p>
                     </div>
                     <div>
                       <p className="text-[#94A3B8] text-xs">Status</p>
@@ -368,35 +367,28 @@ const SingleProduct = () => {
             </div>
           </div>
 
-          {/* Delivery Addresses & Tags */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <MapPin size={18} className="text-[#C026D3]" />
-                Delivery Locations
-              </h3>
+          {/* Tags - UPDATED */}
+          <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
+            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <Tag size={18} className="text-[#C026D3]" />
+              Product Tags
+            </h3>
+            {product.tags && product.tags.length > 0 ? (
               <div className="flex flex-wrap gap-2">
-                {product.deliveryAddresses?.map((addr, idx) => (
-                  <span key={idx} className="px-3 py-1.5 rounded-lg bg-white/5 text-white text-sm">
-                    {addr}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <Tag size={18} className="text-[#C026D3]" />
-                Product Tags
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {product.tags?.map((tag, idx) => (
-                  <span key={idx} className="px-3 py-1.5 rounded-lg bg-[#C026D3]/10 text-[#C026D3] text-sm">
+                {product.tags.map((tag, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => navigate(`/dashboard/products?tag=${encodeURIComponent(tag)}`)}
+                    className="px-3 py-1.5 rounded-lg bg-[#C026D3]/10 text-[#C026D3] text-sm hover:bg-[#C026D3]/20 transition-all cursor-pointer"
+                    title={`View products tagged "${tag}"`}
+                  >
                     #{tag}
-                  </span>
+                  </button>
                 ))}
               </div>
-            </div>
+            ) : (
+              <p className="text-[#94A3B8] text-sm">No tags available for this product.</p>
+            )}
           </div>
         </div>
       </div>

@@ -16,7 +16,7 @@ import {
     Mail,
     Phone,
     Calendar,
-    DollarSign,
+    IndianRupee,
     Tag,
     Image,
     Layers,

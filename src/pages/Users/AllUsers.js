@@ -21,7 +21,7 @@ import {
     Star,
     MapPin,
     ShoppingBag,
-    DollarSign
+    IndianRupee,
 } from "lucide-react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
@@ -390,7 +390,7 @@ const AllUsers = () => {
                                                         className="p-2 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 transition-all"
                                                         title="View Wallet"
                                                     >
-                                                        <DollarSign size={16} />
+                                                        <IndianRupee size={16} />
                                                     </button>
                                                     <button
                                                         onClick={() => navigate(`/dashboard/users/${user._id}`)}

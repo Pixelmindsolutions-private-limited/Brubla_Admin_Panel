@@ -16,7 +16,7 @@ import {
     ChevronRight,
     Layers,
     Tag,
-    DollarSign,
+    IndianRupee,
     ShoppingBag,
     TrendingUp,
     Image as ImageIcon,
@@ -494,10 +494,10 @@ const CollectionProducts = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-[#94A3B8] text-sm">Avg. Price</p>
-                            <p className="text-3xl font-bold text-white mt-1">${stats.avgPrice.toFixed(2)}</p>
+                            <p className="text-3xl font-bold text-white mt-1">₹{stats.avgPrice.toFixed(2)}</p>
                         </div>
                         <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
-                            <DollarSign size={22} className="text-blue-400" />
+                            <IndianRupee size={22} className="text-blue-400" />
                         </div>
                     </div>
                 </div>
@@ -608,11 +608,11 @@ const CollectionProducts = () => {
                                                     <div className="flex items-center gap-2">
                                                         {product.discountPrice ? (
                                                             <>
-                                                                <span className="text-[#94A3B8] text-sm line-through">${product.price}</span>
-                                                                <span className="text-white font-bold text-lg">${product.discountPrice}</span>
+                                                                <span className="text-[#94A3B8] text-sm line-through">₹{product.price}</span>
+                                                                <span className="text-white font-bold text-lg">₹{product.discountPrice}</span>
                                                             </>
                                                         ) : (
-                                                            <span className="text-white font-bold text-lg">${product.price}</span>
+                                                            <span className="text-white font-bold text-lg">₹{product.price}</span>
                                                         )}
                                                     </div>
                                                     <p className="text-xs text-[#94A3B8] mt-1">
