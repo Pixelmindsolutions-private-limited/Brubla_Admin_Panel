@@ -42,7 +42,7 @@ import {
   Warehouse,
   CheckCircle,
   XCircle,
-  Clock
+  Clock,
 } from "lucide-react";
 import { BsGenderNeuter } from "react-icons/bs";
 import logo from "../assets/logo.png";
@@ -182,6 +182,43 @@ const navItems = [
       },
     ],
   },
+  //stock management//
+  {
+    to: "/dashboard/stock-management",
+    label: "Stock Management",
+    icon: Warehouse,
+    children: [
+      {
+        to: "/dashboard/stock-management",
+        label: "Stock Management",
+        icon: Eye,
+      },
+      {
+        to: "/dashboard/stock-adjustment",
+        label: "Stock Adjustment",
+        icon: PlusCircle,
+      },
+      {
+        to: "/dashboard/stock-management/audit-history",
+        label: "Stock Audit History",
+        icon: List,
+      },
+    ],
+  },
+  //stock management//
+
+  {
+    to: "/dashboard/categories",
+    label: "All Categories",
+    icon: Warehouse,
+    children: [
+      {
+        to: "/dashboard/categories",
+        label: "All Categories",
+        icon: Eye,
+      },
+    ],
+  },
 
   {
     to: "/dashboard/customers",
@@ -195,6 +232,7 @@ const navItems = [
       },
     ],
   },
+
   {
     to: "/dashboard/payments",
     label: "Payments",
@@ -255,6 +293,11 @@ const navItems = [
         icon: List,
       },
       {
+        to: "/dashboard/returns/details",
+        label: "Return Details",
+        icon: Eye,
+      },
+      {
         to: "/dashboard/returns/approved",
         label: "Approved Returns",
         icon: Check,
@@ -282,16 +325,51 @@ const navItems = [
         label: "Coupons, Offers & Promo Codes",
         icon: FaPercentage,
       },
+      {
+        to: "/dashboard/coupons",
+        label: "Coupons",
+        icon: Tag,
+      },
+      {
+        to: "/dashboard/promo-codes",
+        label: "Promo Codes",
+        icon: CreditCard,
+      },
+      {
+        to: "/dashboard/seasonal-sales",
+        label: "Seasonal Sales",
+        icon: Clock,
+      },
     ],
   },
   {
-    to: "/dashboard/shipping",
+    to: "/dashboard/shipping/partners",
     label: "Shipping & Delivery",
     icon: Truck,
     children: [
       {
-        to: "/dashboard/shipping",
-        label: "Orders, Tracking & Partners",
+        to: "/dashboard/shipping/partners",
+        label: "Delivery Partners",
+        icon: Truck,
+      },
+      {
+        to: "/dashboard/deliverystatus",
+        label: "Delivery Status",
+        icon: Truck,
+      },
+      {
+        to: "/dashboard/deliverydetails/:id",
+        label: "Delivery Details",
+        icon: Truck,
+      },
+      {
+        to: "/dashboard/shipping-orders",
+        label: "Shipping Orders",
+        icon: Truck,
+      },
+      {
+        to: "/dashboard/tracking",
+        label: "Tracking",
         icon: Truck,
       },
     ],
@@ -422,292 +500,7 @@ const navItems = [
     ],
   },
 
-  // {
-  //   to: "/dashboard/collections",
-  //   label: "Collections",
-  //   icon: BookMarked,
-  //   children: [
-  //     {
-  //       to: "/dashboard/collections",
-  //       label: "All Collections",
-  //       icon: List,
-  //     },
-  //     {
-  //       to: "/dashboard/collections/homepage",
-  //       label: "Homepage Collections",
-  //       icon: Star,
-  //     },
-  //   ],
-  // },
-
-  // {
-  //   to: "/dashboard/designers",
-  //   label: "Designer",
-  //   icon: FaShoppingBag,
-  //   children: [
-  //     {
-  //       to: "/dashboard/pending-designers",
-  //       label: "Pending Designers",
-  //       icon: PiEmpty,
-  //     },
-  //     {
-  //       to: "/dashboard/designers",
-  //       label: "All Designers",
-  //       icon: List,
-  //     },
-  //     {
-  //       to: "/dashboard/pending-designers-products",
-  //       label: "Pending Designers Products",
-  //       icon: PiEmpty,
-  //     },
-  //     {
-  //       to: "/dashboard/designers-products",
-  //       label: "All Designers Products",
-  //       icon: List,
-  //     },
-  //   ],
-  // },
-
-  // {
-  //   to: "/dashboard/login-banners",
-  //   label: "Banners",
-  //   icon: ImagesIcon,
-  //   children: [
-  //     {
-  //       to: "/dashboard/login-banners",
-  //       label: "Login Banners",
-  //       icon: List,
-  //     },
-  //     {
-  //       to: "/dashboard/hero-banners",
-  //       label: "Hero Banner",
-  //       icon: PlusCircle,
-  //     },
-  //     {
-  //       to: "/dashboard/ad-banners",
-  //       label: "Ad Banners",
-  //       icon: Eye,
-  //     },
-  //     // {
-  //     //   to: "/dashboard/user-banners",
-  //     //   label: "User Banners",
-  //     //   icon: Star,
-  //     // },
-  //   ],
-  // },
-
-  // {
-  //   to: "/dashboard/orders",
-  //   label: "Order Management",
-  //   icon: ShoppingCart,
-  //   children: [
-  //     {
-  //       to: "/dashboard/orders",
-  //       label: "All Orders",
-  //       icon: List,
-  //     },
-  //     {
-  //       to: "/dashboard/orders/tracking",
-  //       label: "Order Tracking",
-  //       icon: Eye,
-  //     },
-  //     {
-  //       to: "/dashboard/orders/pending",
-  //       label: "Pending Orders",
-  //       icon: List,
-  //     },
-  //     {
-  //       to: "/dashboard/orders/processing",
-  //       label: "Processing Orders",
-  //       icon: List,
-  //     },
-  //     {
-  //       to: "/dashboard/orders/shipped",
-  //       label: "Shipped Orders",
-  //       icon: Truck,
-  //     },
-  //     {
-  //       to: "/dashboard/orders/delivered",
-  //       label: "Delivered Orders",
-  //       icon: Check,
-  //     },
-  //     {
-  //       to: "/dashboard/orders/cancelled",
-  //       label: "Cancelled Orders",
-  //       icon: X,
-  //     },
-  //   ],
-  // },
-
-  // {
-  //   to: "/dashboard/inventory/available",
-  //   label: "Inventory",
-  //   icon: Warehouse,
-  //   children: [
-  //     {
-  //       to: "/dashboard/inventory/available",
-  //       label: "Available Stock",
-  //       icon: Boxes,
-  //     },
-  //     {
-  //       to: "/dashboard/inventory/low-stock",
-  //       label: "Low Stock",
-  //       icon: AlertCircle,
-  //     },
-  //     {
-  //       to: "/dashboard/inventory/out-of-stock",
-  //       label: "Out of Stock",
-  //       icon: PiEmpty,
-  //     },
-  //     {
-  //       to: "/dashboard/inventory/updates",
-  //       label: "Stock Updates",
-  //       icon: RefreshCw,
-  //     },
-  //   ],
-  // },
-
-  // {
-  //   to: "/dashboard/payments",
-  //   label: "Payments",
-  //   icon: CreditCard,
-  //   children: [
-  //     {
-  //       to: "/dashboard/payments",
-  //       label: "All Transactions",
-  //       icon: List,
-  //     },
-  //     {
-  //       to: "/dashboard/payments/online",
-  //       label: "Online Payments",
-  //       icon: Check,
-  //     },
-  //     {
-  //       to: "/dashboard/payments/cod",
-  //       label: "Cash on Delivery",
-  //       icon: IndianRupee,
-  //     },
-  //   ],
-  // },
-
-  // {
-  //   to: "/dashboard/returns",
-  //   label: "Returns & Refunds",
-  //   icon: RotateCcw,
-  //   children: [
-  //     {
-  //       to: "/dashboard/returns",
-  //       label: "Return Requests",
-  //       icon: List,
-  //     },
-  //     {
-  //       to: "/dashboard/returns/approved",
-  //       label: "Approved Returns",
-  //       icon: Check,
-  //     },
-  //     {
-  //       to: "/dashboard/returns/rejected",
-  //       label: "Rejected Returns",
-  //       icon: X,
-  //     },
-  //     {
-  //       to: "/dashboard/returns/refunds",
-  //       label: "Refund Status",
-  //       icon: IndianRupee,
-  //     },
-  //   ],
-  // },
-
-  // {
-  //   to: "/dashboard/offers",
-  //   label: "Offers & Discounts",
-  //   icon: Tags,
-  //   children: [
-  //     {
-  //       to: "/dashboard/offers",
-  //       label: "Coupons, Offers & Promo Codes",
-  //       icon: FaPercentage,
-  //     },
-  //   ],
-  // },
-
-  // {
-  //   to: "/dashboard/shipping",
-  //   label: "Shipping & Delivery",
-  //   icon: Truck,
-  //   children: [
-  //     {
-  //       to: "/dashboard/shipping",
-  //       label: "Orders, Tracking & Partners",
-  //       icon: Truck,
-  //     },
-  //   ],
-  // },
-
-  // {
-  //   to: "/dashboard/content",
-  //   label: "Website Content",
-  //   icon: ImagesIcon,
-  //   children: [
-  //     {
-  //       to: "/dashboard/content",
-  //       label: "Banners, Categories & Pages",
-  //       icon: ImagesIcon,
-  //     },
-  //   ],
-  // },
-
-  // {
-  //   to: "/dashboard/reports",
-  //   label: "Reports & Analytics",
-  //   icon: BarChart3,
-  //   children: [
-  //     {
-  //       to: "/dashboard/reports",
-  //       label: "Sales, Orders & Revenue",
-  //       icon: BarChart3,
-  //     },
-  //   ],
-  // },
-
-  // {
-  //   to: "/dashboard/notifications",
-  //   label: "Notifications",
-  //   icon: Bell,
-  //   children: [
-  //     {
-  //       to: "/dashboard/notifications",
-  //       label: "Customer & System Alerts",
-  //       icon: Bell,
-  //     },
-  //   ],
-  // },
-
-  // {
-  //   to: "/dashboard/admin-management",
-  //   label: "Admin & Employees",
-  //   icon: ShieldCheck,
-  //   children: [
-  //     {
-  //       to: "/dashboard/admin-management",
-  //       label: "Users, Roles & Permissions",
-  //       icon: Users,
-  //     },
-  //   ],
-  // },
-
-  // {
-  //   to: "/dashboard/settings",
-  //   label: "Settings",
-  //   icon: Settings,
-  //   children: [
-  //     {
-  //       to: "/dashboard/settings",
-  //       label: "Website & Security Settings",
-  //       icon: Settings,
-  //     },
-  //   ],
-  // },
+ 
 ];
 
 // ── Dropdown ───────────────────────────────────────────────────────

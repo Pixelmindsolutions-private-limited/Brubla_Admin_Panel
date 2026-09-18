@@ -2,31 +2,31 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, ChevronDown, Plus, Eye, Edit, Trash2 } from "lucide-react";
 
-const OffersDiscounts = () => {
+const Coupons = () => {
   const navigate = useNavigate();
   const [activeDropdown, setActiveDropdown] = useState(null);
 
-  // Offers ko state mein rakha taaki toggle kar sakein
-  const [offers, setOffers] = useState([
-    { id: 1, name: "Summer Sale", products: 25, discount: "20%", validity: "Sep 1–15", status: "Active" },
-    { id: 2, name: "Shirt Offer", products: 10, discount: "₹300", validity: "Sep 5–20", status: "Active" },
+  // Coupons ko state mein rakha taaki toggle kar sakein
+  const [coupons, setCoupons] = useState([
+    { id: 1, code: "BRUBLA10", discount: "10%", minOrder: "₹999", usage: "45/100", validity: "Sep 1–30", status: "Active" },
+    { id: 2, code: "WELCOME500", discount: "₹500", minOrder: "₹2,000", usage: "20/50", validity: "Sep 1–15", status: "Active" },
   ]);
 
   // Status Toggle Handler
   const toggleStatus = (id) => {
-    setOffers((prev) =>
-      prev.map((o) =>
-        o.id === id
-          ? { ...o, status: o.status === "Active" ? "Inactive" : "Active" }
-          : o
+    setCoupons((prev) =>
+      prev.map((c) =>
+        c.id === id
+          ? { ...c, status: c.status === "Active" ? "Inactive" : "Active" }
+          : c
       )
     );
-    // Real API: axios.patch(`${API}/offers/${id}/toggle-status`)
+    // Real API: axios.patch(`${API}/coupons/${id}/toggle-status`)
   };
 
   return (
     <div className="space-y-6 pb-10">
-      <h1 className="text-2xl md:text-3xl font-bold text-white">Discount Offers</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-white">Coupons</h1>
 
       {/* Search & Filters Section */}
       <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6 space-y-4">
@@ -34,7 +34,7 @@ const OffersDiscounts = () => {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]" size={18} />
           <input
             type="text"
-            placeholder="Search Offer"
+            placeholder="Search Coupon"
             className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#071236]/50 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50"
           />
         </div>
@@ -49,13 +49,16 @@ const OffersDiscounts = () => {
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8] pointer-events-none" size={14} />
               </div>
             ))}
+            <button className="px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm hover:bg-red-500/20 transition-all">
+              Clear Filters
+            </button>
           </div>
 
           <button
-            onClick={() => navigate("/dashboard/offers/create-offer")}
+            onClick={() => navigate("/dashboard/coupons/create")}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#C026D3] to-[#2563EB] text-white font-semibold text-sm hover:shadow-lg transition-all"
           >
-            <Plus size={16} /> Create Discount Offer
+            <Plus size={16} /> Create Coupon
           </button>
         </div>
       </div>
@@ -66,7 +69,7 @@ const OffersDiscounts = () => {
           <table className="w-full text-left">
             <thead className="bg-white/5 border-b border-white/10">
               <tr>
-                {["Offer Name", "Products", "Discount", "Validity", "Status", "Actions"].map((h) => (
+                {["Coupon Code", "Discount", "Min Order", "Usage", "Validity", "Status", "Actions"].map((h) => (
                   <th key={h} className="px-4 py-3 text-xs font-semibold text-[#94A3B8] uppercase tracking-wider whitespace-nowrap">
                     {h}
                   </th>
@@ -74,15 +77,16 @@ const OffersDiscounts = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {offers.map((row, index) => {
-                const isLastRow = index >= offers.length - 2;
+              {coupons.map((row, index) => {
+                const isLastRow = index >= coupons.length - 2;
                 const isActive = row.status === "Active";
 
                 return (
                   <tr key={row.id} className="hover:bg-white/5 transition-colors">
-                    <td className="px-4 py-3 text-sm text-white font-medium">{row.name}</td>
-                    <td className="px-4 py-3 text-sm text-[#94A3B8]">{row.products}</td>
+                    <td className="px-4 py-3 text-sm text-white font-medium">{row.code}</td>
                     <td className="px-4 py-3 text-sm text-emerald-400 font-semibold">{row.discount}</td>
+                    <td className="px-4 py-3 text-sm text-[#94A3B8]">{row.minOrder}</td>
+                    <td className="px-4 py-3 text-sm text-[#94A3B8]">{row.usage}</td>
                     <td className="px-4 py-3 text-sm text-[#94A3B8]">{row.validity}</td>
 
                     {/* Status Column - Toggle Button */}
@@ -141,7 +145,7 @@ const OffersDiscounts = () => {
                                 </button>
                                 <button
                                   onClick={() => {
-                                    navigate(`/dashboard/offers/edit/${row.id}`);
+                                    navigate(`/dashboard/coupons/edit/${row.id}`);
                                     setActiveDropdown(null);
                                   }}
                                   className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-blue-400 hover:bg-white/10 transition-colors"
@@ -175,4 +179,4 @@ const OffersDiscounts = () => {
   );
 };
 
-export default OffersDiscounts;
+export default Coupons;

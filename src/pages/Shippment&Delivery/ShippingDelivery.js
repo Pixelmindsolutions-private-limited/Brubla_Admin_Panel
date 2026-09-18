@@ -1,4 +1,4 @@
-import ModulePage from "./ModulePage";
+import ModulePage from "../ModulePage";
 
 const ShippingDelivery = () => <ModulePage title="Shipping & Delivery" />;
 

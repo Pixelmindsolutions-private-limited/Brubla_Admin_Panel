@@ -4,12 +4,11 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import {
   ArrowLeft,
-  Package,
   Edit,
   Trash2,
+  Copy,
+  Archive,
   Tag,
-  IndianRupee,
-  ShoppingBag,
   CheckCircle,
   XCircle,
   Calendar,
@@ -17,7 +16,16 @@ import {
   Hash,
   Image as ImageIcon,
   Star,
-  TrendingUp
+  ChevronDown,
+  ChevronRight,
+  Box,
+  Truck,
+  RotateCcw,
+  Settings,
+  History,
+  Info,
+  Layers,
+  Video,
 } from "lucide-react";
 
 const API = "http://31.97.228.17:4077/api/admin";
@@ -27,6 +35,21 @@ const SingleProduct = () => {
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeMedia, setActiveMedia] = useState(0);
+
+  // Collapsible sections state (all open by default)
+  const [openSections, setOpenSections] = useState({
+    overview: true,
+    description: true,
+    specs: true,
+    variants: true,
+    inventory: true,
+    shipping: true,
+    returns: true,
+    tags: true,
+    settings: true,
+    activity: true,
+  });
 
   const getToken = () => sessionStorage.getItem("adminToken");
 
@@ -35,11 +58,8 @@ const SingleProduct = () => {
       setLoading(true);
       const token = getToken();
       const response = await axios.get(`${API}/products/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
       if (response.data.success) {
         setProduct(response.data.product);
       }
@@ -63,6 +83,10 @@ const SingleProduct = () => {
     fetchProduct();
   }, [id]);
 
+  const toggleSection = (key) => {
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
   const deleteProduct = async () => {
     const result = await Swal.fire({
       title: "Delete Product?",
@@ -81,11 +105,8 @@ const SingleProduct = () => {
       try {
         const token = getToken();
         await axios.delete(`${API}/products/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-
         Swal.fire({
           title: "Deleted!",
           text: "Product deleted successfully",
@@ -126,271 +147,598 @@ const SingleProduct = () => {
     );
   }
 
-  const discount = product.maxDiscount ||
+  const discount =
+    product.maxDiscount ||
     (product.displayActualPrice && product.displayPrice
-      ? Math.round(((product.displayActualPrice - product.displayPrice) / product.displayActualPrice) * 100)
+      ? Math.round(
+          ((product.displayActualPrice - product.displayPrice) /
+            product.displayActualPrice) *
+            100
+        )
       : 0);
 
+  const mediaGallery = [
+    ...(product.mainImages || []),
+    ...(product.variants?.[0]?.images || []),
+  ];
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate("/dashboard/products")}
-            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-all"
-          >
-            <ArrowLeft size={20} />
-          </button>
+    <div className="space-y-6 pb-10">
+      {/* ========== BACK BUTTON ========== */}
+      <button
+        onClick={() => navigate("/dashboard/products")}
+        className="flex items-center gap-2 text-[#94A3B8] hover:text-white text-sm transition-all"
+      >
+        <ArrowLeft size={16} /> Back to All Products
+      </button>
+
+      {/* ========== HEADER: Product Name + Status ========== */}
+      <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white">Product Details</h1>
-            <p className="text-[#94A3B8] text-sm mt-1">View complete product information</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-white">
+              {product.name?.toUpperCase()}
+            </h1>
+            <div className="flex items-center gap-3 mt-2">
+              <p className="text-[#94A3B8] text-sm font-mono">
+                Product ID: {product.sku || product._id?.slice(-8)}
+              </p>
+              <span
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
+                  product.isActive
+                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                    : "bg-red-500/20 text-red-400 border border-red-500/30"
+                }`}
+              >
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    product.isActive ? "bg-emerald-400" : "bg-red-400"
+                  }`}
+                />
+                {product.isActive ? "Active" : "Inactive"}
+              </span>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => navigate(`/dashboard/products/edit/${product._id}`)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 transition-all"
-          >
-            <Edit size={16} />
-            Edit Product
-          </button>
-          <button
-            onClick={deleteProduct}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all"
-          >
-            <Trash2 size={16} />
-            Delete
-          </button>
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => navigate(`/dashboard/products/edit/${product._id}`)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 transition-all text-sm"
+            >
+              <Edit size={16} /> Edit Product
+            </button>
+            <button
+              onClick={() => console.log("Duplicate", product._id)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 transition-all text-sm"
+            >
+              <Copy size={16} /> Duplicate
+            </button>
+            <button
+              onClick={() => console.log("Archive", product._id)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 transition-all text-sm"
+            >
+              <Archive size={16} /> Archive
+            </button>
+            <button
+              onClick={deleteProduct}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all text-sm"
+            >
+              <Trash2 size={16} /> Delete
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Images */}
-        <div className="lg:col-span-1 space-y-6">
-          <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Product Images</h3>
-            {product.mainImages && product.mainImages.length > 0 ? (
-              <div className="grid grid-cols-2 gap-3">
-                {product.mainImages.map((img, idx) => (
-                  <img
-                    key={idx}
-                    src={img}
-                    alt={`Product ${idx}`}
-                    className="w-full h-32 rounded-xl object-cover"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = "https://placehold.co/600x800/e5e7eb/64748b?text=No+Image";
-                    }}
-                  />
-                ))}
-              </div>
+      {/* ========== PRODUCT IMAGES / VIDEO GALLERY ========== */}
+      <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
+        <h3 className="text-sm font-semibold text-[#C026D3] mb-4 flex items-center gap-2">
+          <ImageIcon size={16} /> PRODUCT IMAGES / VIDEO
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Main Image */}
+          <div className="md:col-span-3">
+            {mediaGallery.length > 0 ? (
+              <img
+                src={mediaGallery[activeMedia]}
+                alt="Product Main"
+                className="w-full h-80 rounded-xl object-contain bg-black/20 border border-white/10"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src =
+                    "https://placehold.co/800x600/e5e7eb/64748b?text=No+Image";
+                }}
+              />
             ) : (
-              <div className="text-center py-8">
-                <ImageIcon size={48} className="text-[#94A3B8] mx-auto mb-2" />
-                <p className="text-[#94A3B8]">No images available</p>
+              <div className="w-full h-80 rounded-xl bg-black/20 border border-white/10 flex flex-col items-center justify-center text-[#94A3B8]">
+                <ImageIcon size={48} />
+                <p className="mt-2 text-sm">No images available</p>
               </div>
             )}
           </div>
 
-          <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Quick Stats</h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[#94A3B8]">Total Stock</span>
-                <span className="text-white font-semibold">{product.totalStock || 0}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[#94A3B8]">Available Colors</span>
-                <div className="flex items-center gap-1">
-                  {product.availableColors?.map((color, idx) => (
-                    <div
-                      key={idx}
-                      className="w-5 h-5 rounded-full border border-white/20"
-                      style={{ backgroundColor: color.toLowerCase() }}
-                      title={color}
-                    />
-                  ))}
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[#94A3B8]">Available Sizes</span>
-                <span className="text-white">{product.availableSizes?.join(", ")}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[#94A3B8]">Rating</span>
-                <div className="flex items-center gap-1">
-                  <Star size={16} className="text-yellow-400" />
-                  <span className="text-white">{product.averageRating?.toFixed(1) || "0.0"}</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[#94A3B8]">Status</span>
-                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold ${product.isActive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
-                  {product.isActive ? <CheckCircle size={12} /> : <XCircle size={12} />}
-                  {product.isActive ? 'Active' : 'Inactive'}
-                </span>
-              </div>
+          {/* Thumbnails */}
+          <div className="md:col-span-1 grid grid-cols-4 md:grid-cols-2 gap-2">
+            {mediaGallery.slice(0, 6).map((img, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveMedia(idx)}
+                className={`rounded-lg overflow-hidden border-2 transition-all ${
+                  activeMedia === idx
+                    ? "border-[#C026D3]"
+                    : "border-white/10 hover:border-white/30"
+                }`}
+              >
+                <img
+                  src={img}
+                  alt={`Thumbnail ${idx}`}
+                  className="w-full h-20 object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src =
+                      "https://placehold.co/200x200/e5e7eb/64748b?text=No";
+                  }}
+                />
+              </button>
+            ))}
+
+            {/* Video Thumbnail (Mock) */}
+            <div className="rounded-lg overflow-hidden border-2 border-white/10 flex items-center justify-center bg-white/5 text-[#94A3B8] h-20">
+              <Video size={20} />
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Right Column - Details */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Basic Info */}
-          <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <Package size={18} className="text-[#C026D3]" />
-              Product Information
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="text-xs text-[#94A3B8] uppercase tracking-wider">Product Name</label>
-                <p className="text-white text-lg font-semibold mt-1">{product.name}</p>
-              </div>
-              <div>
-                <label className="text-xs text-[#94A3B8] uppercase tracking-wider">Description</label>
-                <p className="text-[#94A3B8] mt-1">{product.description || "No description"}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs text-[#94A3B8] uppercase tracking-wider">Category</label>
-                  <p className="text-white mt-1">{product.categoryId?.name || "N/A"}</p>
-                </div>
-                <div>
-                  <label className="text-xs text-[#94A3B8] uppercase tracking-wider">Subcategory</label>
-                  <p className="text-white mt-1">{product.subcategoryName || "N/A"}</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs text-[#94A3B8] uppercase tracking-wider">Created By</label>
-                  <p className="text-white mt-1 flex items-center gap-2">
-                    <User size={14} />
-                    {product.createdBy || "Admin"}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-xs text-[#94A3B8] uppercase tracking-wider">Created At</label>
-                  <p className="text-white mt-1 flex items-center gap-2">
-                    <Calendar size={14} />
-                    {new Date(product.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
+      {/* ========== COLLAPSIBLE SECTIONS ========== */}
+
+      {/* 1. Product Overview */}
+      <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10">
+        <button
+          onClick={() => toggleSection("overview")}
+          className="w-full flex items-center justify-between p-5"
+        >
+          <h3 className="text-sm font-semibold text-[#C026D3] flex items-center gap-2">
+            <Info size={16} /> Product Overview
+          </h3>
+          {openSections.overview ? (
+            <ChevronDown size={18} className="text-[#94A3B8]" />
+          ) : (
+            <ChevronRight size={18} className="text-[#94A3B8]" />
+          )}
+        </button>
+        {openSections.overview && (
+          <div className="px-5 pb-5 grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-white/5 pt-4">
+            <div>
+              <p className="text-xs text-[#94A3B8]">Category</p>
+              <p className="text-sm text-white mt-1">
+                {product.categoryId?.name || "N/A"}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-[#94A3B8]">Subcategory</p>
+              <p className="text-sm text-white mt-1">
+                {product.subcategoryName || "N/A"}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-[#94A3B8]">Brand</p>
+              <p className="text-sm text-white mt-1">{product.brand || "N/A"}</p>
+            </div>
+            <div>
+              <p className="text-xs text-[#94A3B8]">Gender</p>
+              <p className="text-sm text-white mt-1">
+                {product.gender || "Unisex"}
+              </p>
             </div>
           </div>
+        )}
+      </div>
 
-          {/* Pricing */}
-          <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <span className="text-[#C026D3] text-lg">₹</span>
-              Pricing Information
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white/5 rounded-xl p-4 text-center">
-                <p className="text-[#94A3B8] text-sm">Display Price</p>
-                <p className="text-2xl font-bold text-[#C026D3]">₹{product.displayPrice || product.variants?.[0]?.price}</p>
-              </div>
-              <div className="bg-white/5 rounded-xl p-4 text-center">
-                <p className="text-[#94A3B8] text-sm">Actual Price</p>
-                <p className="text-2xl font-bold text-white">₹{product.displayActualPrice || product.variants?.[0]?.price}</p>
-              </div>
-              <div className="bg-white/5 rounded-xl p-4 text-center">
-                <p className="text-[#94A3B8] text-sm">Discount</p>
-                <p className="text-2xl font-bold text-emerald-400">{discount}%</p>
-              </div>
+      {/* 2. Description */}
+      <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10">
+        <button
+          onClick={() => toggleSection("description")}
+          className="w-full flex items-center justify-between p-5"
+        >
+          <h3 className="text-sm font-semibold text-[#C026D3] flex items-center gap-2">
+            <Layers size={16} /> Description
+          </h3>
+          {openSections.description ? (
+            <ChevronDown size={18} className="text-[#94A3B8]" />
+          ) : (
+            <ChevronRight size={18} className="text-[#94A3B8]" />
+          )}
+        </button>
+        {openSections.description && (
+          <div className="px-5 pb-5 space-y-4 border-t border-white/5 pt-4">
+            <div>
+              <p className="text-xs text-[#94A3B8]">Short Description</p>
+              <p className="text-sm text-white mt-1">
+                {product.shortDescription || "No short description"}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-[#94A3B8]">Detailed Description</p>
+              <p className="text-sm text-white mt-1 whitespace-pre-line">
+                {product.description || "No detailed description"}
+              </p>
             </div>
           </div>
+        )}
+      </div>
 
-          {/* Variants */}
-          <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <Hash size={18} className="text-[#C026D3]" />
-              Product Variants ({product.variants?.length})
-            </h3>
-            <div className="space-y-4">
-              {product.variants?.map((variant, idx) => (
-                <div key={idx} className="bg-white/5 rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-white font-semibold text-lg">{variant.color}</h4>
-                    <span className="text-xs text-[#94A3B8]">SKU: {variant.sku}</span>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-                    <div>
-                      <p className="text-[#94A3B8] text-xs">Price</p>
-                      <p className="text-white">₹{variant.price}</p>
-                    </div>
-                    <div>
-                      <p className="text-[#94A3B8] text-xs">Discount Price</p>
-                      <p className="text-white">₹{variant.discountPrice ? variant.discountPrice : "N/A"}</p>
-                    </div>
-                    <div>
-                      <p className="text-[#94A3B8] text-xs">Status</p>
-                      <span className={`text-xs ${variant.isActive ? 'text-emerald-400' : 'text-red-400'}`}>
-                        {variant.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-[#94A3B8] text-xs mb-2">Sizes & Stock</p>
-                    <div className="flex flex-wrap gap-2">
-                      {variant.sizes?.map((size, sIdx) => (
-                        <span key={sIdx} className="px-3 py-1 rounded-lg bg-white/10 text-white text-sm">
-                          {size.size}: {size.stock} in stock
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  {variant.images && variant.images.length > 0 && (
-                    <div className="mt-3">
-                      <p className="text-[#94A3B8] text-xs mb-2">Variant Images</p>
-                      <div className="flex gap-2">
-                        {variant.images.map((img, iIdx) => (
-                          <img
-                            key={iIdx}
-                            src={img}
-                            alt={`${variant.color} ${iIdx}`}
-                            className="w-16 h-16 rounded-lg object-cover"
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = "https://placehold.co/600x800/e5e7eb/64748b?text=No+Image";
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
+      {/* 3. Product Specifications */}
+      <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10">
+        <button
+          onClick={() => toggleSection("specs")}
+          className="w-full flex items-center justify-between p-5"
+        >
+          <h3 className="text-sm font-semibold text-[#C026D3] flex items-center gap-2">
+            <Settings size={16} /> Product Specifications
+          </h3>
+          {openSections.specs ? (
+            <ChevronDown size={18} className="text-[#94A3B8]" />
+          ) : (
+            <ChevronRight size={18} className="text-[#94A3B8]" />
+          )}
+        </button>
+        {openSections.specs && (
+          <div className="px-5 pb-5 border-t border-white/5 pt-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { label: "Fabric", value: product.specs?.fabric },
+                { label: "Pattern", value: product.specs?.pattern },
+                { label: "Fit", value: product.specs?.fit },
+                { label: "Sleeve", value: product.specs?.sleeve },
+                { label: "Neck", value: product.specs?.neck },
+                { label: "Occasion", value: product.specs?.occasion },
+                { label: "Wash Care", value: product.specs?.washCare },
+                { label: "Length", value: product.specs?.length },
+              ].map((spec, idx) => (
+                <div key={idx}>
+                  <p className="text-xs text-[#94A3B8]">{spec.label}</p>
+                  <p className="text-sm text-white mt-1">
+                    {spec.value || "—"}
+                  </p>
                 </div>
               ))}
             </div>
           </div>
+        )}
+      </div>
 
-          {/* Tags - UPDATED */}
-          <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <Tag size={18} className="text-[#C026D3]" />
-              Product Tags
-            </h3>
-            {product.tags && product.tags.length > 0 ? (
+      {/* 4. Variants & Pricing */}
+      <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10">
+        <button
+          onClick={() => toggleSection("variants")}
+          className="w-full flex items-center justify-between p-5"
+        >
+          <h3 className="text-sm font-semibold text-[#C026D3] flex items-center gap-2">
+            <Hash size={16} /> Variants & Pricing ({product.variants?.length || 0})
+          </h3>
+          {openSections.variants ? (
+            <ChevronDown size={18} className="text-[#94A3B8]" />
+          ) : (
+            <ChevronRight size={18} className="text-[#94A3B8]" />
+          )}
+        </button>
+        {openSections.variants && (
+          <div className="px-5 pb-5 border-t border-white/5 pt-4 space-y-4">
+            {product.variants?.map((variant, idx) => (
+              <div key={idx} className="bg-white/5 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-white font-semibold">{variant.color}</h4>
+                  <span className="text-xs text-[#94A3B8] font-mono">
+                    SKU: {variant.sku}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                  <div>
+                    <p className="text-xs text-[#94A3B8]">MRP</p>
+                    <p className="text-sm text-white">
+                      ₹{variant.mrp || variant.price}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#94A3B8]">Selling Price</p>
+                    <p className="text-sm text-emerald-400 font-semibold">
+                      ₹{variant.discountPrice || variant.price}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#94A3B8]">Stock</p>
+                    <p className="text-sm text-white">
+                      {variant.sizes?.reduce((a, b) => a + (b.stock || 0), 0) || 0}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#94A3B8]">Barcode</p>
+                    <p className="text-sm text-white font-mono">
+                      {variant.barcode || "—"}
+                    </p>
+                  </div>
+                </div>
+
+                {variant.sizes?.length > 0 && (
+                  <div>
+                    <p className="text-xs text-[#94A3B8] mb-2">Sizes</p>
+                    <div className="flex flex-wrap gap-2">
+                      {variant.sizes.map((size, sIdx) => (
+                        <span
+                          key={sIdx}
+                          className="px-3 py-1 rounded-lg bg-white/10 text-white text-xs"
+                        >
+                          {size.size}: {size.stock}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 5. Inventory */}
+      <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10">
+        <button
+          onClick={() => toggleSection("inventory")}
+          className="w-full flex items-center justify-between p-5"
+        >
+          <h3 className="text-sm font-semibold text-[#C026D3] flex items-center gap-2">
+            <Box size={16} /> Inventory
+          </h3>
+          {openSections.inventory ? (
+            <ChevronDown size={18} className="text-[#94A3B8]" />
+          ) : (
+            <ChevronRight size={18} className="text-[#94A3B8]" />
+          )}
+        </button>
+        {openSections.inventory && (
+          <div className="px-5 pb-5 grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-white/5 pt-4">
+            <div>
+              <p className="text-xs text-[#94A3B8]">Total Stock</p>
+              <p className="text-lg font-bold text-white mt-1">
+                {product.totalStock || 0}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-[#94A3B8]">Warehouse</p>
+              <p className="text-sm text-white mt-1">
+                {product.warehouse || "Default Warehouse"}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-[#94A3B8]">Low Stock Alert</p>
+              <p className="text-sm text-white mt-1">
+                {product.lowStockAlert || 5} units
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 6. Shipping & Package Details */}
+      <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10">
+        <button
+          onClick={() => toggleSection("shipping")}
+          className="w-full flex items-center justify-between p-5"
+        >
+          <h3 className="text-sm font-semibold text-[#C026D3] flex items-center gap-2">
+            <Truck size={16} /> Shipping & Package Details
+          </h3>
+          {openSections.shipping ? (
+            <ChevronDown size={18} className="text-[#94A3B8]" />
+          ) : (
+            <ChevronRight size={18} className="text-[#94A3B8]" />
+          )}
+        </button>
+        {openSections.shipping && (
+          <div className="px-5 pb-5 grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-white/5 pt-4">
+            {[
+              { label: "Weight", value: product.shipping?.weight },
+              { label: "Length", value: product.shipping?.length },
+              { label: "Width", value: product.shipping?.width },
+              { label: "Height", value: product.shipping?.height },
+            ].map((field, idx) => (
+              <div key={idx}>
+                <p className="text-xs text-[#94A3B8]">{field.label}</p>
+                <p className="text-sm text-white mt-1">
+                  {field.value || "—"}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 7. Return & Exchange */}
+      <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10">
+        <button
+          onClick={() => toggleSection("returns")}
+          className="w-full flex items-center justify-between p-5"
+        >
+          <h3 className="text-sm font-semibold text-[#C026D3] flex items-center gap-2">
+            <RotateCcw size={16} /> Return & Exchange
+          </h3>
+          {openSections.returns ? (
+            <ChevronDown size={18} className="text-[#94A3B8]" />
+          ) : (
+            <ChevronRight size={18} className="text-[#94A3B8]" />
+          )}
+        </button>
+        {openSections.returns && (
+          <div className="px-5 pb-5 border-t border-white/5 pt-4 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs text-[#94A3B8]">Returnable</p>
+                <p
+                  className={`text-sm mt-1 font-semibold ${
+                    product.settings?.returnable
+                      ? "text-emerald-400"
+                      : "text-red-400"
+                  }`}
+                >
+                  {product.settings?.returnable ? "Yes" : "No"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-[#94A3B8]">Exchange Available</p>
+                <p
+                  className={`text-sm mt-1 font-semibold ${
+                    product.settings?.exchangeAvailable
+                      ? "text-emerald-400"
+                      : "text-red-400"
+                  }`}
+                >
+                  {product.settings?.exchangeAvailable ? "Yes" : "No"}
+                </p>
+              </div>
+            </div>
+            <div>
+              <p className="text-xs text-[#94A3B8]">Return Policy</p>
+              <p className="text-sm text-white mt-1">
+                {product.returnPolicy || "Standard 7-day return policy"}
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 8. Product Tags */}
+      <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10">
+        <button
+          onClick={() => toggleSection("tags")}
+          className="w-full flex items-center justify-between p-5"
+        >
+          <h3 className="text-sm font-semibold text-[#C026D3] flex items-center gap-2">
+            <Tag size={16} /> Product Tags
+          </h3>
+          {openSections.tags ? (
+            <ChevronDown size={18} className="text-[#94A3B8]" />
+          ) : (
+            <ChevronRight size={18} className="text-[#94A3B8]" />
+          )}
+        </button>
+        {openSections.tags && (
+          <div className="px-5 pb-5 border-t border-white/5 pt-4">
+            {product.tags?.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {product.tags.map((tag, idx) => (
                   <button
                     key={idx}
-                    onClick={() => navigate(`/dashboard/products?tag=${encodeURIComponent(tag)}`)}
-                    className="px-3 py-1.5 rounded-lg bg-[#C026D3]/10 text-[#C026D3] text-sm hover:bg-[#C026D3]/20 transition-all cursor-pointer"
-                    title={`View products tagged "${tag}"`}
+                    onClick={() =>
+                      navigate(
+                        `/dashboard/products?tag=${encodeURIComponent(tag)}`
+                      )
+                    }
+                    className="px-3 py-1.5 rounded-lg bg-[#C026D3]/10 text-[#C026D3] text-sm hover:bg-[#C026D3]/20 transition-all"
                   >
                     #{tag}
                   </button>
                 ))}
               </div>
             ) : (
-              <p className="text-[#94A3B8] text-sm">No tags available for this product.</p>
+              <p className="text-[#94A3B8] text-sm">No tags available</p>
             )}
           </div>
-        </div>
+        )}
+      </div>
+
+      {/* 9. Additional Settings */}
+      <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10">
+        <button
+          onClick={() => toggleSection("settings")}
+          className="w-full flex items-center justify-between p-5"
+        >
+          <h3 className="text-sm font-semibold text-[#C026D3] flex items-center gap-2">
+            <Star size={16} /> Additional Settings
+          </h3>
+          {openSections.settings ? (
+            <ChevronDown size={18} className="text-[#94A3B8]" />
+          ) : (
+            <ChevronRight size={18} className="text-[#94A3B8]" />
+          )}
+        </button>
+        {openSections.settings && (
+          <div className="px-5 pb-5 grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-white/5 pt-4">
+            {[
+              { label: "New Arrival", key: "newArrival" },
+              { label: "Featured", key: "featured" },
+              { label: "Best Seller", key: "bestSeller" },
+              { label: "Returnable", key: "returnable" },
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-2 bg-white/5 rounded-lg p-3"
+              >
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    product.settings?.[item.key]
+                      ? "bg-emerald-400"
+                      : "bg-gray-500"
+                  }`}
+                />
+                <span className="text-sm text-white">{item.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 10. Activity History */}
+      <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10">
+        <button
+          onClick={() => toggleSection("activity")}
+          className="w-full flex items-center justify-between p-5"
+        >
+          <h3 className="text-sm font-semibold text-[#C026D3] flex items-center gap-2">
+            <History size={16} /> Activity History
+          </h3>
+          {openSections.activity ? (
+            <ChevronDown size={18} className="text-[#94A3B8]" />
+          ) : (
+            <ChevronRight size={18} className="text-[#94A3B8]" />
+          )}
+        </button>
+        {openSections.activity && (
+          <div className="px-5 pb-5 border-t border-white/5 pt-4 space-y-3">
+            {/* Mock activity items — replace with product.activityLog */}
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-white/5">
+              <User size={14} className="text-[#C026D3] mt-0.5 shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm text-white">
+                  Product Created by{" "}
+                  <span className="text-[#C026D3]">
+                    {product.createdBy || "Admin"}
+                  </span>
+                </p>
+                <p className="text-xs text-[#94A3B8] mt-0.5 flex items-center gap-1">
+                  <Calendar size={10} />
+                  {new Date(product.createdAt).toLocaleString()}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-white/5">
+              <Edit size={14} className="text-blue-400 mt-0.5 shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm text-white">
+                  Last Updated by{" "}
+                  <span className="text-blue-400">Admin</span>
+                </p>
+                <p className="text-xs text-[#94A3B8] mt-0.5 flex items-center gap-1">
+                  <Calendar size={10} />
+                  {new Date(product.updatedAt).toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

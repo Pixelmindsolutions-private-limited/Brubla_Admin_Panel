@@ -2,39 +2,39 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, ChevronDown, Plus, Eye, Edit, Trash2 } from "lucide-react";
 
-const OffersDiscounts = () => {
+const PromoCodes = () => {
   const navigate = useNavigate();
   const [activeDropdown, setActiveDropdown] = useState(null);
 
-  // Offers ko state mein rakha taaki toggle kar sakein
-  const [offers, setOffers] = useState([
-    { id: 1, name: "Summer Sale", products: 25, discount: "20%", validity: "Sep 1–15", status: "Active" },
-    { id: 2, name: "Shirt Offer", products: 10, discount: "₹300", validity: "Sep 5–20", status: "Active" },
+  // Promos ko state mein rakha taaki toggle kar sakein
+  const [promos, setPromos] = useState([
+    { id: 1, code: "FESTIVE20", discount: "20%", applicableTo: "Selected Products", usage: "80/200", validity: "Sep–Oct", status: "Active" },
+    { id: 2, code: "NEWUSER10", discount: "10%", applicableTo: "All Products", usage: "150/500", validity: "Sep–Dec", status: "Active" },
   ]);
 
   // Status Toggle Handler
   const toggleStatus = (id) => {
-    setOffers((prev) =>
-      prev.map((o) =>
-        o.id === id
-          ? { ...o, status: o.status === "Active" ? "Inactive" : "Active" }
-          : o
+    setPromos((prev) =>
+      prev.map((p) =>
+        p.id === id
+          ? { ...p, status: p.status === "Active" ? "Inactive" : "Active" }
+          : p
       )
     );
-    // Real API: axios.patch(`${API}/offers/${id}/toggle-status`)
+    // Real API: axios.patch(`${API}/promo-codes/${id}/toggle-status`)
   };
 
   return (
     <div className="space-y-6 pb-10">
-      <h1 className="text-2xl md:text-3xl font-bold text-white">Discount Offers</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-white">Promo Codes</h1>
 
-      {/* Search & Filters Section */}
+      {/* Search & Filters */}
       <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6 space-y-4">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]" size={18} />
           <input
             type="text"
-            placeholder="Search Offer"
+            placeholder="Search Promo Code"
             className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#071236]/50 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50"
           />
         </div>
@@ -52,21 +52,21 @@ const OffersDiscounts = () => {
           </div>
 
           <button
-            onClick={() => navigate("/dashboard/offers/create-offer")}
+            onClick={() => navigate("/dashboard/promo-codes/create")}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#C026D3] to-[#2563EB] text-white font-semibold text-sm hover:shadow-lg transition-all"
           >
-            <Plus size={16} /> Create Discount Offer
+            <Plus size={16} /> Create Promo Code
           </button>
         </div>
       </div>
 
-      {/* Table Section */}
+      {/* Table */}
       <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead className="bg-white/5 border-b border-white/10">
               <tr>
-                {["Offer Name", "Products", "Discount", "Validity", "Status", "Actions"].map((h) => (
+                {["Code", "Discount", "Applicable To", "Usage", "Validity", "Status", "Actions"].map((h) => (
                   <th key={h} className="px-4 py-3 text-xs font-semibold text-[#94A3B8] uppercase tracking-wider whitespace-nowrap">
                     {h}
                   </th>
@@ -74,15 +74,16 @@ const OffersDiscounts = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {offers.map((row, index) => {
-                const isLastRow = index >= offers.length - 2;
+              {promos.map((row, index) => {
+                const isLastRow = index >= promos.length - 2;
                 const isActive = row.status === "Active";
 
                 return (
                   <tr key={row.id} className="hover:bg-white/5 transition-colors">
-                    <td className="px-4 py-3 text-sm text-white font-medium">{row.name}</td>
-                    <td className="px-4 py-3 text-sm text-[#94A3B8]">{row.products}</td>
+                    <td className="px-4 py-3 text-sm text-white font-medium">{row.code}</td>
                     <td className="px-4 py-3 text-sm text-emerald-400 font-semibold">{row.discount}</td>
+                    <td className="px-4 py-3 text-sm text-[#94A3B8]">{row.applicableTo}</td>
+                    <td className="px-4 py-3 text-sm text-[#94A3B8]">{row.usage}</td>
                     <td className="px-4 py-3 text-sm text-[#94A3B8]">{row.validity}</td>
 
                     {/* Status Column - Toggle Button */}
@@ -96,7 +97,6 @@ const OffersDiscounts = () => {
                             : "bg-gray-500/20 text-gray-400 border-gray-500/30 hover:bg-gray-500/30"
                         }`}
                       >
-                        {/* Toggle Dot */}
                         <span
                           className={`w-2 h-2 rounded-full ${
                             isActive ? "bg-emerald-400" : "bg-gray-400"
@@ -141,7 +141,7 @@ const OffersDiscounts = () => {
                                 </button>
                                 <button
                                   onClick={() => {
-                                    navigate(`/dashboard/offers/edit/${row.id}`);
+                                    navigate(`/dashboard/promo-codes/edit/${row.id}`);
                                     setActiveDropdown(null);
                                   }}
                                   className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-blue-400 hover:bg-white/10 transition-colors"
@@ -175,4 +175,4 @@ const OffersDiscounts = () => {
   );
 };
 
-export default OffersDiscounts;
+export default PromoCodes;

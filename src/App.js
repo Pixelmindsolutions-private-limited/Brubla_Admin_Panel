@@ -4,7 +4,7 @@ import AdminLayout from "./components/AdminLayout";
 
 import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./components/PrivateRoute";
-import './App.css';
+import "./App.css";
 import Login from "./components/Login";
 import AllUsers from "./pages/Users/AllUsers";
 import SingleUser from "./pages/Users/SingleUser";
@@ -52,25 +52,45 @@ import ApprovedReturns from "./pages/Returns/ApprovedReturns";
 import RejectedReturns from "./pages/Returns/RejectedReturns";
 import RefundStatus from "./pages/Returns/RefundStatus";
 import OffersDiscounts from "./pages/OffersDiscounts";
-import ShippingDelivery from "./pages/ShippingDelivery";
+// import ShippingDelivery from "./pages/Shippment&Delivery/ShippingDelivery";
 import WebsiteContentManagement from "./pages/WebsiteContentManagement";
 import ReportsAnalytics from "./pages/ReportsAnalytics";
 import Notifications from "./pages/Notifications";
 import AdminEmployeeManagement from "./pages/AdminEmployeeManagement";
 import Settings from "./pages/Settings";
-
+import ReturnDetails from "./pages/Returns/ReturnDetails";
+import CreateDiscountOffer from "./pages/Users/CreateDiscountOffer ";
+import Coupons from "./pages/Users/Coupons";
+import CreateCoupon from "./pages/Users/CreateCoupon";
+import PromoCodes from "./pages/Users/PromoCodes";
+import CreatePromoCode from "./pages/Users/CreatePromoCode";
+import SeasonalSales from "./pages/Users/SeasonalSales";
+import CreateSeasonalSale from "./pages/Users/CreateSeasonalSale";
+import AddDeliveryPartner from "./pages/Shippment&Delivery/AddDeliveryPartner";
+import DeliveryPartners from "./pages/Shippment&Delivery/DeliveryPartners";
+import DeliveryStatus from "./pages/Shippment&Delivery/DeliveryStatus";
+import DeliveryDetails from "./pages/Shippment&Delivery/DeliveryDetails";
+import Tracking from "./pages/Shippment&Delivery/Tracking";
+import ShippingOrders from "./pages/Shippment&Delivery/ShippingOrders";
+import Stockmanagement from "./pages/Stockmanagement/Stockmanagement";
+import StockAuditHistory from "./pages/Stockmanagement/StockAuditHistory";
+import StockAdjustment from "./pages/Stockmanagement/Stockadjustment";
+import Categories from "./pages/All Categories/Categories";
+import AddCategory from "./pages/All Categories/AddCategory";
+import AddSubcategory from "./pages/All Categories/AddSubcategory";
+import DeleteCategoryModal from "./pages/All Categories/DeleteCategoryModal";
+import SingleCustomer from "./pages/All Categories/SingleCustomer";
+import AllCustomers from "./pages/All Categories/AllCustomers";
 
 const App = () => {
   return (
     <Routes>
-
       {/* Login Route */}
       <Route path="/" element={<Login />} />
 
       <Route element={<PrivateRoute />}>
         {/* Dashboard Layout */}
         <Route path="/dashboard" element={<AdminLayout />}>
-
           <Route index element={<Dashboard />} />
 
           <Route path="users" element={<AllUsers />} />
@@ -81,23 +101,65 @@ const App = () => {
           <Route path="pending-designers" element={<PendingDesigners />} />
           <Route path="designers" element={<AllDesigners />} />
           <Route path="designer/:id" element={<SingleDesigner />} />
-          <Route path="pending-designers-products" element={<PendingDesignerProducts />} />
+          <Route
+            path="pending-designers-products"
+            element={<PendingDesignerProducts />}
+          />
           <Route path="designers-products" element={<DesignerProducts />} />
-          <Route path="designers-products/:designerId" element={<DesignerProducts />} />
+          <Route
+            path="designers-products/:designerId"
+            element={<DesignerProducts />}
+          />
+          <Route path="stock-management" element={<Stockmanagement />} />
 
+          <Route path="stock-adjustment" element={<StockAdjustment />} />
+          <Route
+            path="stock-management/audit-history"
+            element={<StockAuditHistory />}
+          />
+          <Route path="/dashboard/categories" element={<Categories/>} />
+          <Route
+            path="/dashboard/categories/create"
+            element={<AddCategory/>}
+          />
+          <Route
+            path="/dashboard/categories/edit/:id"
+            element={<AddCategory/>}
+          />
+          <Route
+            path="/dashboard/categories/:id/subcategories/create"
+            element={<AddSubcategory/>}
+          />
+          <Route
+            path="/dashboard/categories/:id/subcategories/edit/:subId"
+            element={<AddSubcategory/>}
+          />
+          <Route
+            path="/dashboard/categories/delete/:id"
+            element={<DeleteCategoryModal/>}
+          />
           <Route path="productcategory" element={<ProductCategory />} />
           <Route path="products/create" element={<CreateProduct />} />
           <Route path="products" element={<AllProducts />} />
           <Route path="products/edit/:id" element={<CreateProduct />} />
           <Route path="products/:id" element={<SingleProduct />} />
-          <Route path="products/recommended" element={<RecommendedProducts />} />
+          <Route
+            path="products/recommended"
+            element={<RecommendedProducts />}
+          />
           <Route path="products/latest" element={<LatestProducts />} />
           <Route path="products/brands" element={<ProductBrands />} />
           <Route path="products/reviews" element={<ProductReviews />} />
 
           <Route path="collections" element={<CollectionManager />} />
-          <Route path="collections/products/:collectionId" element={<CollectionProducts />} />
-          <Route path="collections/homepage" element={<HomepageCollections />} />
+          <Route
+            path="collections/products/:collectionId"
+            element={<CollectionProducts />}
+          />
+          <Route
+            path="collections/homepage"
+            element={<HomepageCollections />}
+          />
 
           <Route path="login-banners" element={<LoginBanners />} />
           <Route path="hero-banners" element={<HeroBanners />} />
@@ -108,16 +170,34 @@ const App = () => {
           <Route path="inventory/out-of-stock" element={<OutOfStock />} />
           <Route path="inventory/updates" element={<StockUpdates />} />
 
-          <Route path="customers" element={<AllUsers />} />
-          <Route path="customers/:id" element={<SingleUser />} />
+          <Route path="customers" element={<AllCustomers/>} />
+          <Route path="customers/:id" element={<SingleCustomer/>} />
 
           <Route path="orders" element={<AllOrders title="All Orders" />} />
-          <Route path="orders/tracking" element={<OrderTracking title="Order Tracking" />} />
-          <Route path="orders/pending" element={<PendingOrders title="Pending Orders" />} />
-          <Route path="orders/processing" element={<ProcessingOrders title="Processing Orders" />} />
-          <Route path="orders/shipped" element={<ShippedOrders title="Shipped Orders" />} />
-          <Route path="orders/delivered" element={<DeliveredOrders title="Delivered Orders" />} />
-          <Route path="orders/cancelled" element={<CancelledOrders title="Cancelled Orders" />} />
+          <Route
+            path="orders/tracking"
+            element={<OrderTracking title="Order Tracking" />}
+          />
+          <Route
+            path="orders/pending"
+            element={<PendingOrders title="Pending Orders" />}
+          />
+          <Route
+            path="orders/processing"
+            element={<ProcessingOrders title="Processing Orders" />}
+          />
+          <Route
+            path="orders/shipped"
+            element={<ShippedOrders title="Shipped Orders" />}
+          />
+          <Route
+            path="orders/delivered"
+            element={<DeliveredOrders title="Delivered Orders" />}
+          />
+          <Route
+            path="orders/cancelled"
+            element={<CancelledOrders title="Cancelled Orders" />}
+          />
 
           <Route path="payments" element={<AllTransactions />} />
           <Route path="payments/online" element={<OnlinePayments />} />
@@ -125,26 +205,90 @@ const App = () => {
           <Route path="payments/cod/pending" element={<CODPending />} />
           <Route path="payments/cod/collected" element={<CODCollected />} />
           <Route path="payments/cod/failed" element={<CODFailed />} />
-          <Route path="payments/cod/reconciliation" element={<CODReconciliation />} />
+          <Route
+            path="payments/cod/reconciliation"
+            element={<CODReconciliation />}
+          />
           <Route path="returns" element={<ReturnRequests />} />
+          <Route path="returns/details" element={<ReturnDetails />} />
           <Route path="returns/approved" element={<ApprovedReturns />} />
           <Route path="returns/rejected" element={<RejectedReturns />} />
           <Route path="returns/refunds" element={<RefundStatus />} />
           <Route path="offers" element={<OffersDiscounts />} />
-          <Route path="shipping" element={<ShippingDelivery />} />
+          <Route path="offers/create-offer" element={<CreateDiscountOffer />} />
+          <Route path="coupons" element={<Coupons />} />
+          <Route path="coupons/create" element={<CreateCoupon />} />
+          <Route
+            path="/dashboard/coupons/edit/:id"
+            element={<CreateCoupon />}
+          />
+          <Route path="promo-codes" element={<PromoCodes />} />
+          <Route path="promo-codes/create" element={<CreatePromoCode />} />
+          <Route
+            path="/dashboard/promo-codes/edit/:id"
+            element={<CreatePromoCode />}
+          />
+          <Route path="seasonal-sales" element={<SeasonalSales />} />
+          <Route
+            path="seasonal-sales/create"
+            element={<CreateSeasonalSale />}
+          />
+          <Route
+            path="/dashboard/seasonal-sales/edit/:id"
+            element={<CreateSeasonalSale />}
+          />
+          <Route
+            path="seasonal-sales/create"
+            element={<CreateDiscountOffer />}
+          />
+          <Route
+            path="/dashboard/offers/create-offer"
+            element={<CreateDiscountOffer />}
+          />
+          <Route
+            path="/dashboard/offers/edit/:id"
+            element={<CreateDiscountOffer />}
+          />
+          {/* <Route path="shipping" element={<ShippingDelivery />} /> */}
+          <Route
+            path="add-shipping-delivery"
+            element={<AddDeliveryPartner />}
+          />
+          <Route
+            path="/dashboard/shipping/edit/:id"
+            element={<AddDeliveryPartner />}
+          />
+          <Route
+            path="/dashboard/shipping/partners"
+            element={<DeliveryPartners />}
+          />
+          <Route
+            path="/dashboard/deliverystatus"
+            element={<DeliveryStatus />}
+          />
+          <Route
+            path="/dashboard/deliverydetails/:id"
+            element={<DeliveryDetails />}
+          />
+          <Route
+            path="/dashboard/shipping-orders"
+            element={<ShippingOrders />}
+          />
+          <Route path="/dashboard/tracking" element={<Tracking />} />
           <Route path="content" element={<WebsiteContentManagement />} />
           <Route path="reports" element={<ReportsAnalytics />} />
           <Route path="notifications" element={<Notifications />} />
-          <Route path="admin-management" element={<AdminEmployeeManagement />} />
+          <Route
+            path="admin-management"
+            element={<AdminEmployeeManagement />}
+          />
           <Route path="settings" element={<Settings />} />
-
         </Route>
       </Route>
 
       {/* Default Redirect */}
       <Route path="*" element={<Navigate to="/dashboard" />} />
-
-    </Routes >
+    </Routes>
   );
 };
 
