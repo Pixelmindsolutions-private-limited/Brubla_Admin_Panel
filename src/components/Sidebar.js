@@ -124,6 +124,11 @@ const navItems = [
         icon: List,
       },
       {
+        to: "/dashboard/customers/:id/orders",
+        label: "Order History",
+        icon: Eye,
+      },
+      {
         to: "/dashboard/orders/tracking",
         label: "Order Tracking",
         icon: Eye,

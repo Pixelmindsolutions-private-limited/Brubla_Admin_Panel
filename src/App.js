@@ -81,6 +81,9 @@ import AddSubcategory from "./pages/All Categories/AddSubcategory";
 import DeleteCategoryModal from "./pages/All Categories/DeleteCategoryModal";
 import SingleCustomer from "./pages/All Categories/SingleCustomer";
 import AllCustomers from "./pages/All Categories/AllCustomers";
+import OrderHistory from "./pages/OrderHistory";
+import CollectionDetails from "./pages/Collections/CollectionDetails";
+import AddProductsToCollection from "./pages/Collections/AddProductsToCollection";
 
 const App = () => {
   return (
@@ -117,26 +120,26 @@ const App = () => {
             path="stock-management/audit-history"
             element={<StockAuditHistory />}
           />
-          <Route path="/dashboard/categories" element={<Categories/>} />
+          <Route path="/dashboard/categories" element={<Categories />} />
           <Route
             path="/dashboard/categories/create"
-            element={<AddCategory/>}
+            element={<AddCategory />}
           />
           <Route
             path="/dashboard/categories/edit/:id"
-            element={<AddCategory/>}
+            element={<AddCategory />}
           />
           <Route
             path="/dashboard/categories/:id/subcategories/create"
-            element={<AddSubcategory/>}
+            element={<AddSubcategory />}
           />
           <Route
             path="/dashboard/categories/:id/subcategories/edit/:subId"
-            element={<AddSubcategory/>}
+            element={<AddSubcategory />}
           />
           <Route
             path="/dashboard/categories/delete/:id"
-            element={<DeleteCategoryModal/>}
+            element={<DeleteCategoryModal />}
           />
           <Route path="productcategory" element={<ProductCategory />} />
           <Route path="products/create" element={<CreateProduct />} />
@@ -157,6 +160,18 @@ const App = () => {
             element={<CollectionProducts />}
           />
           <Route
+            path="/dashboard/collections/:id"
+            element={<CollectionDetails />}
+          />
+          <Route
+            path="/dashboard/collections/:id/add-products"
+            element={<AddProductsToCollection />}
+          />
+          <Route
+            path="/dashboard/collections/products/:collectionId"
+            element={<CollectionProducts />}
+          />
+          <Route
             path="collections/homepage"
             element={<HomepageCollections />}
           />
@@ -170,14 +185,19 @@ const App = () => {
           <Route path="inventory/out-of-stock" element={<OutOfStock />} />
           <Route path="inventory/updates" element={<StockUpdates />} />
 
-          <Route path="customers" element={<AllCustomers/>} />
-          <Route path="customers/:id" element={<SingleCustomer/>} />
+          <Route path="customers" element={<AllCustomers />} />
+          <Route path="customers/:id" element={<SingleCustomer />} />
 
           <Route path="orders" element={<AllOrders title="All Orders" />} />
           <Route
             path="orders/tracking"
             element={<OrderTracking title="Order Tracking" />}
           />
+          <Route
+            path="/dashboard/customers/:id/orders"
+            element={<OrderHistory />}
+          />
+
           <Route
             path="orders/pending"
             element={<PendingOrders title="Pending Orders" />}
