@@ -186,7 +186,7 @@ const AllUsers = () => {
                         <Users size={28} className="text-[#C026D3]" />
                         All Users
                     </h1>
-                    <p className="text-[#94A3B8] text-sm mt-1">
+                    <p className="text-[#d2d3d4] text-sm mt-1">
                         Manage and monitor all registered users
                     </p>
                 </div>

@@ -25,6 +25,10 @@ import {
 
 const API = "http://31.97.228.17:4077/api/admin";
 
+// Reusable dropdown class (matches AllUsers page)
+const SELECT_CLASS =
+  "w-full px-4 py-2.5 rounded-xl bg-black border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50 transition-all cursor-pointer";
+
 const CreateProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -56,11 +60,11 @@ const CreateProduct = () => {
     subcategoryId: "",
     brand: "",
     gender: "",
-    isActive: true, // Product Status
+    isActive: true,
 
     // 2. Description
     shortDescription: "",
-    description: "", // Detailed description
+    description: "",
 
     // 3. Specifications
     specs: {
@@ -95,7 +99,7 @@ const CreateProduct = () => {
     },
 
     // 8. Delivery
-    deliveryAddresses: [], // Pincodes/Locations
+    deliveryAddresses: [],
     returnPolicy: "",
 
     // 9. Tags
@@ -120,8 +124,14 @@ const CreateProduct = () => {
     discountPrice: "",
     sizes: [],
   });
-  const [currentSize, setCurrentSize] = useState({ size: "", sku: "", mrp: "", sellingPrice: "", stock: "" });
-  
+  const [currentSize, setCurrentSize] = useState({
+    size: "",
+    sku: "",
+    mrp: "",
+    sellingPrice: "",
+    stock: "",
+  });
+
   // Image Previews
   const [mainImagePreview, setMainImagePreview] = useState(null);
   const [additionalPreviews, setAdditionalPreviews] = useState([]);
@@ -151,7 +161,6 @@ const CreateProduct = () => {
       });
       if (response.data.success) {
         const p = response.data.product;
-        // Map backend product to frontend state structure
         setFormData({
           name: p.name || "",
           categoryId: p.categoryId?._id || p.categoryId || "",
@@ -161,24 +170,57 @@ const CreateProduct = () => {
           isActive: p.isActive ?? true,
           shortDescription: p.shortDescription || "",
           description: p.description || "",
-          specs: p.specifications || p.specs || { fabric: "", color: "", pattern: "", fit: "", sleeve: "", neck: "", occasion: "", washCare: "", length: "" },
-          mainImage: null, // Handle existing image logic separately if needed
+          specs:
+            p.specifications ||
+            p.specs || {
+              fabric: "",
+              color: "",
+              pattern: "",
+              fit: "",
+              sleeve: "",
+              neck: "",
+              occasion: "",
+              washCare: "",
+              length: "",
+            },
+          mainImage: null,
           mainVideo: null,
           additionalImages: [],
           variants: p.variants || [],
           totalStock: p.totalStock || 0,
-          shipping: p.shipping || { weight: "", length: "", width: "", height: "" },
-          deliveryAddresses: p.deliveryOptions?.availablePincodes || p.deliveryAddresses || [],
-          returnPolicy: p.deliveryOptions?.returnPolicy || p.returnPolicy || "",
+          shipping:
+            p.shipping || { weight: "", length: "", width: "", height: "" },
+          deliveryAddresses:
+            p.deliveryOptions?.availablePincodes || p.deliveryAddresses || [],
+          returnPolicy:
+            p.deliveryOptions?.returnPolicy || p.returnPolicy || "",
           tags: p.tags || [],
           settings: Array.isArray(p.additionalSettings)
-            ? p.additionalSettings.reduce((settings, setting) => ({ ...settings, [setting.key]: setting.value }), {})
-            : p.settings || { newArrival: false, featured: false, returnable: true, bestSeller: false, exchangeAvailable: false },
+            ? p.additionalSettings.reduce(
+                (settings, setting) => ({
+                  ...settings,
+                  [setting.key]: setting.value,
+                }),
+                {}
+              )
+            : p.settings || {
+                newArrival: false,
+                featured: false,
+                returnable: true,
+                bestSeller: false,
+                exchangeAvailable: false,
+              },
         });
       }
     } catch (error) {
       console.error("Error fetching product:", error);
-      Swal.fire({ title: "Error!", text: "Failed to fetch product details", icon: "error", background: "#071236", color: "#FFFFFF" });
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to fetch product details",
+        icon: "error",
+        background: "#071236",
+        color: "#FFFFFF",
+      });
       navigate("/dashboard/products");
     } finally {
       setFetching(false);
@@ -238,7 +280,10 @@ const CreateProduct = () => {
 
   const handleAdditionalImages = (e) => {
     const files = Array.from(e.target.files);
-    setFormData((prev) => ({ ...prev, additionalImages: [...prev.additionalImages, ...files] }));
+    setFormData((prev) => ({
+      ...prev,
+      additionalImages: [...prev.additionalImages, ...files],
+    }));
     const previews = files.map((file) => URL.createObjectURL(file));
     setAdditionalPreviews((prev) => [...prev, ...previews]);
   };
@@ -254,23 +299,35 @@ const CreateProduct = () => {
   // Tags
   const addTag = () => {
     if (newTag.trim()) {
-      setFormData((prev) => ({ ...prev, tags: [...prev.tags, newTag.trim().toLowerCase()] }));
+      setFormData((prev) => ({
+        ...prev,
+        tags: [...prev.tags, newTag.trim().toLowerCase()],
+      }));
       setNewTag("");
     }
   };
   const removeTag = (index) => {
-    setFormData((prev) => ({ ...prev, tags: prev.tags.filter((_, i) => i !== index) }));
+    setFormData((prev) => ({
+      ...prev,
+      tags: prev.tags.filter((_, i) => i !== index),
+    }));
   };
 
   // Addresses
   const addAddress = () => {
     if (newAddress.trim()) {
-      setFormData((prev) => ({ ...prev, deliveryAddresses: [...prev.deliveryAddresses, newAddress.trim()] }));
+      setFormData((prev) => ({
+        ...prev,
+        deliveryAddresses: [...prev.deliveryAddresses, newAddress.trim()],
+      }));
       setNewAddress("");
     }
   };
   const removeAddress = (index) => {
-    setFormData((prev) => ({ ...prev, deliveryAddresses: prev.deliveryAddresses.filter((_, i) => i !== index) }));
+    setFormData((prev) => ({
+      ...prev,
+      deliveryAddresses: prev.deliveryAddresses.filter((_, i) => i !== index),
+    }));
   };
 
   // Variants
@@ -280,7 +337,13 @@ const CreateProduct = () => {
         ...prev,
         sizes: [...prev.sizes, { ...currentSize }],
       }));
-      setCurrentSize({ size: "", sku: "", mrp: "", sellingPrice: "", stock: "" });
+      setCurrentSize({
+        size: "",
+        sku: "",
+        mrp: "",
+        sellingPrice: "",
+        stock: "",
+      });
     }
   };
 
@@ -293,7 +356,13 @@ const CreateProduct = () => {
 
   const addVariant = () => {
     if (!currentVariant.color || !currentVariant.price) {
-      Swal.fire({ title: "Missing Fields", text: "Color and Price are required for a variant.", icon: "warning", background: "#071236", color: "#FFF" });
+      Swal.fire({
+        title: "Missing Fields",
+        text: "Color and Price are required for a variant.",
+        icon: "warning",
+        background: "#071236",
+        color: "#FFF",
+      });
       return;
     }
     setFormData((prev) => ({
@@ -314,7 +383,6 @@ const CreateProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Basic Validation
     if (!formData.name || !formData.categoryId || formData.variants.length === 0) {
       Swal.fire({
         title: "Validation Error",
@@ -328,7 +396,6 @@ const CreateProduct = () => {
 
     const submitData = new FormData();
 
-    // Simple fields are added only from the values entered in this form.
     submitData.append("name", formData.name);
     submitData.append("categoryId", formData.categoryId);
     if (formData.subcategoryId) submitData.append("subcategoryId", formData.subcategoryId);
@@ -337,7 +404,6 @@ const CreateProduct = () => {
     if (formData.shortDescription) submitData.append("shortDescription", formData.shortDescription);
     if (formData.description) submitData.append("description", formData.description);
 
-    // These JSON field names match the admin products multipart API.
     const specifications = Object.fromEntries(
       Object.entries(formData.specs).filter(([, value]) => value !== "")
     );
@@ -351,20 +417,24 @@ const CreateProduct = () => {
     if (Object.keys(shipping).length) submitData.append("shipping", JSON.stringify(shipping));
 
     const deliveryOptions = {};
-    if (formData.deliveryAddresses.length) deliveryOptions.availablePincodes = formData.deliveryAddresses;
+    if (formData.deliveryAddresses.length)
+      deliveryOptions.availablePincodes = formData.deliveryAddresses;
     if (formData.returnPolicy) deliveryOptions.returnPolicy = formData.returnPolicy;
-    if (Object.keys(deliveryOptions).length) submitData.append("deliveryOptions", JSON.stringify(deliveryOptions));
+    if (Object.keys(deliveryOptions).length)
+      submitData.append("deliveryOptions", JSON.stringify(deliveryOptions));
 
     if (formData.tags.length) submitData.append("tags", JSON.stringify(formData.tags));
 
     const additionalSettings = Object.entries(formData.settings).map(([key, value]) => ({
       key,
-      label: key.replace(/([A-Z])/g, " $1").replace(/^./, (letter) => letter.toUpperCase()),
+      label: key
+        .replace(/([A-Z])/g, " $1")
+        .replace(/^./, (letter) => letter.toUpperCase()),
       value,
     }));
-    if (additionalSettings.length) submitData.append("additionalSettings", JSON.stringify(additionalSettings));
+    if (additionalSettings.length)
+      submitData.append("additionalSettings", JSON.stringify(additionalSettings));
 
-    // Append Variants
     const variantsForJson = formData.variants.map((v) => ({
       color: v.color,
       price: Number(v.price),
@@ -376,8 +446,6 @@ const CreateProduct = () => {
     }));
     submitData.append("variants", JSON.stringify(variantsForJson));
 
-    // The existing image controls feed the first created variant, as required by
-    // the API's variant_{index}_images field convention.
     if (formData.mainImage) submitData.append("variant_0_images", formData.mainImage);
     formData.additionalImages.forEach((img) => {
       submitData.append("variant_0_images", img);
@@ -470,14 +538,15 @@ const CreateProduct = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-
         {/* 1. Basic Information */}
         <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
           <SectionHeader title="1. Basic Information" icon={Info} sectionKey="basic" />
           {openSections.basic && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-2 duration-200">
               <div>
-                <label className="block text-sm font-semibold text-white mb-2">Product Name *</label>
+                <label className="block text-sm font-semibold text-white mb-2">
+                  Product Name *
+                </label>
                 <input
                   type="text"
                   name="name"
@@ -489,36 +558,48 @@ const CreateProduct = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-white mb-2">Category *</label>
+                <label className="block text-sm font-semibold text-white mb-2">
+                  Category *
+                </label>
                 <select
                   name="categoryId"
                   value={formData.categoryId}
                   onChange={handleChange}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#071236]/50 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50"
+                  className={SELECT_CLASS}
                   required
                 >
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
-                    <option key={cat._id} value={cat._id}>{cat.name}</option>
+                    <option key={cat._id} value={cat._id}>
+                      {cat.name}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-white mb-2">Subcategory</label>
+                <label className="block text-sm font-semibold text-white mb-2">
+                  Subcategory
+                </label>
                 <select
                   name="subcategoryId"
                   value={formData.subcategoryId}
                   onChange={handleChange}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#071236]/50 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50"
+                  className={SELECT_CLASS}
                 >
                   <option value="">Select Subcategory</option>
-                  {categories.find(c => c._id === formData.categoryId)?.subcategories?.map((sub) => (
-                    <option key={sub._id} value={sub._id}>{sub.name}</option>
-                  ))}
+                  {categories
+                    .find((c) => c._id === formData.categoryId)
+                    ?.subcategories?.map((sub) => (
+                      <option key={sub._id} value={sub._id}>
+                        {sub.name}
+                      </option>
+                    ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-white mb-2">Brand</label>
+                <label className="block text-sm font-semibold text-white mb-2">
+                  Brand
+                </label>
                 <input
                   type="text"
                   name="brand"
@@ -529,12 +610,14 @@ const CreateProduct = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-white mb-2">Gender</label>
+                <label className="block text-sm font-semibold text-white mb-2">
+                  Gender
+                </label>
                 <select
                   name="gender"
                   value={formData.gender}
                   onChange={handleChange}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#071236]/50 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50"
+                  className={SELECT_CLASS}
                 >
                   <option value="">Select Gender</option>
                   <option value="Men">Men</option>
@@ -565,7 +648,9 @@ const CreateProduct = () => {
           {openSections.description && (
             <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
               <div>
-                <label className="block text-sm font-semibold text-white mb-2">Short Description</label>
+                <label className="block text-sm font-semibold text-white mb-2">
+                  Short Description
+                </label>
                 <input
                   type="text"
                   name="shortDescription"
@@ -576,7 +661,9 @@ const CreateProduct = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-white mb-2">Detailed Description</label>
+                <label className="block text-sm font-semibold text-white mb-2">
+                  Detailed Description
+                </label>
                 <textarea
                   name="description"
                   value={formData.description}
@@ -595,18 +682,22 @@ const CreateProduct = () => {
           <SectionHeader title="3. Product Specifications" icon={Settings} sectionKey="specs" />
           {openSections.specs && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
-              {['fabric', 'color', 'pattern', 'fit', 'sleeve', 'neck', 'occasion', 'washCare', 'length'].map((field) => (
-                <div key={field}>
-                  <label className="block text-xs font-semibold text-[#94A3B8] mb-1 capitalize">{field.replace(/([A-Z])/g, ' $1').trim()}</label>
-                  <input
-                    type="text"
-                    name={field}
-                    value={formData.specs[field]}
-                    onChange={handleSpecChange}
-                    className="w-full px-3 py-2 rounded-lg bg-[#071236]/50 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50 text-sm"
-                  />
-                </div>
-              ))}
+              {["fabric", "color", "pattern", "fit", "sleeve", "neck", "occasion", "washCare", "length"].map(
+                (field) => (
+                  <div key={field}>
+                    <label className="block text-xs font-semibold text-[#94A3B8] mb-1 capitalize">
+                      {field.replace(/([A-Z])/g, " $1").trim()}
+                    </label>
+                    <input
+                      type="text"
+                      name={field}
+                      value={formData.specs[field]}
+                      onChange={handleSpecChange}
+                      className="w-full px-3 py-2 rounded-lg bg-[#071236]/50 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50 text-sm"
+                    />
+                  </div>
+                )
+              )}
             </div>
           )}
         </div>
@@ -618,7 +709,9 @@ const CreateProduct = () => {
             <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-white mb-2">Main Image *</label>
+                  <label className="block text-sm font-semibold text-white mb-2">
+                    Main Image *
+                  </label>
                   <input
                     type="file"
                     accept="image/*"
@@ -626,21 +719,31 @@ const CreateProduct = () => {
                     className="w-full px-4 py-2.5 rounded-xl bg-black/20 border border-white/10 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-[#C026D3] file:text-white hover:file:bg-[#A020B0] cursor-pointer"
                   />
                   {mainImagePreview && (
-                    <img src={mainImagePreview} alt="Main Preview" className="mt-2 w-20 h-20 rounded-lg object-cover" />
+                    <img
+                      src={mainImagePreview}
+                      alt="Main Preview"
+                      className="mt-2 w-20 h-20 rounded-lg object-cover"
+                    />
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-white mb-2">Main Video (Optional)</label>
+                  <label className="block text-sm font-semibold text-white mb-2">
+                    Main Video (Optional)
+                  </label>
                   <input
                     type="file"
                     accept="video/*"
-                    onChange={(e) => setFormData({ ...formData, mainVideo: e.target.files[0] })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, mainVideo: e.target.files[0] })
+                    }
                     className="w-full px-4 py-2.5 rounded-xl bg-black/20 border border-white/10 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-[#C026D3] file:text-white hover:file:bg-[#A020B0] cursor-pointer"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-white mb-2">Additional Images</label>
+                <label className="block text-sm font-semibold text-white mb-2">
+                  Additional Images
+                </label>
                 <input
                   type="file"
                   multiple
@@ -651,7 +754,11 @@ const CreateProduct = () => {
                 <div className="flex gap-2 mt-3 flex-wrap">
                   {additionalPreviews.map((preview, idx) => (
                     <div key={idx} className="relative">
-                      <img src={preview} alt={`Preview ${idx}`} className="w-16 h-16 rounded-lg object-cover" />
+                      <img
+                        src={preview}
+                        alt={`Preview ${idx}`}
+                        className="w-16 h-16 rounded-lg object-cover"
+                      />
                       <button
                         type="button"
                         onClick={() => removeAdditionalImage(idx)}
@@ -680,62 +787,86 @@ const CreateProduct = () => {
                     type="text"
                     placeholder="Color *"
                     value={currentVariant.color}
-                    onChange={(e) => setCurrentVariant({ ...currentVariant, color: e.target.value })}
+                    onChange={(e) =>
+                      setCurrentVariant({ ...currentVariant, color: e.target.value })
+                    }
                     className="px-4 py-2.5 rounded-xl bg-black/20 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50 text-sm"
                   />
                   <input
                     type="number"
                     placeholder="Price *"
                     value={currentVariant.price}
-                    onChange={(e) => setCurrentVariant({ ...currentVariant, price: e.target.value })}
+                    onChange={(e) =>
+                      setCurrentVariant({ ...currentVariant, price: e.target.value })
+                    }
                     className="px-4 py-2.5 rounded-xl bg-black/20 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50 text-sm"
                   />
                   <input
                     type="number"
                     placeholder="Discount Price"
                     value={currentVariant.discountPrice}
-                    onChange={(e) => setCurrentVariant({ ...currentVariant, discountPrice: e.target.value })}
+                    onChange={(e) =>
+                      setCurrentVariant({
+                        ...currentVariant,
+                        discountPrice: e.target.value,
+                      })
+                    }
                     className="px-4 py-2.5 rounded-xl bg-black/20 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50 text-sm"
                   />
                 </div>
 
                 {/* Sizes Sub-section */}
                 <div className="mb-4">
-                  <label className="text-xs text-[#94A3B8] mb-2 block">Sizes, SKU, MRP, Selling Price, Stock</label>
+                  <label className="text-xs text-[#94A3B8] mb-2 block">
+                    Sizes, SKU, MRP, Selling Price, Stock
+                  </label>
                   <div className="flex flex-wrap gap-2 mb-2">
                     <input
                       type="text"
                       placeholder="Size (S, M, L)"
                       value={currentSize.size}
-                      onChange={(e) => setCurrentSize({ ...currentSize, size: e.target.value })}
+                      onChange={(e) =>
+                        setCurrentSize({ ...currentSize, size: e.target.value })
+                      }
                       className="w-20 px-3 py-2 rounded-lg bg-black/20 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50 text-sm"
                     />
                     <input
                       type="text"
                       placeholder="SKU"
                       value={currentSize.sku}
-                      onChange={(e) => setCurrentSize({ ...currentSize, sku: e.target.value })}
+                      onChange={(e) =>
+                        setCurrentSize({ ...currentSize, sku: e.target.value })
+                      }
                       className="w-24 px-3 py-2 rounded-lg bg-black/20 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50 text-sm"
                     />
                     <input
                       type="number"
                       placeholder="MRP"
                       value={currentSize.mrp}
-                      onChange={(e) => setCurrentSize({ ...currentSize, mrp: e.target.value })}
+                      onChange={(e) =>
+                        setCurrentSize({ ...currentSize, mrp: e.target.value })
+                      }
                       className="w-20 px-3 py-2 rounded-lg bg-black/20 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50 text-sm"
                     />
                     <input
                       type="number"
                       placeholder="Selling Price"
                       value={currentSize.sellingPrice}
-                      onChange={(e) => setCurrentSize({ ...currentSize, sellingPrice: e.target.value })}
+                      onChange={(e) =>
+                        setCurrentSize({
+                          ...currentSize,
+                          sellingPrice: e.target.value,
+                        })
+                      }
                       className="w-24 px-3 py-2 rounded-lg bg-black/20 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50 text-sm"
                     />
                     <input
                       type="number"
                       placeholder="Stock"
                       value={currentSize.stock}
-                      onChange={(e) => setCurrentSize({ ...currentSize, stock: e.target.value })}
+                      onChange={(e) =>
+                        setCurrentSize({ ...currentSize, stock: e.target.value })
+                      }
                       className="w-20 px-3 py-2 rounded-lg bg-black/20 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50 text-sm"
                     />
                     <button
@@ -746,13 +877,21 @@ const CreateProduct = () => {
                       Add Size
                     </button>
                   </div>
-                  
+
                   {/* Added Sizes List */}
                   <div className="flex flex-wrap gap-2">
                     {currentVariant.sizes.map((size, idx) => (
-                      <span key={idx} className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-white/10 text-white text-xs">
-                        {size.size} | SKU: {size.sku || '-'} | MRP: {size.mrp} | Sell: {size.sellingPrice} | Stock: {size.stock}
-                        <button type="button" onClick={() => removeSizeFromVariant(idx)} className="text-red-400 hover:text-red-300">
+                      <span
+                        key={idx}
+                        className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-white/10 text-white text-xs"
+                      >
+                        {size.size} | SKU: {size.sku || "-"} | MRP: {size.mrp} | Sell:{" "}
+                        {size.sellingPrice} | Stock: {size.stock}
+                        <button
+                          type="button"
+                          onClick={() => removeSizeFromVariant(idx)}
+                          className="text-red-400 hover:text-red-300"
+                        >
                           <X size={12} />
                         </button>
                       </span>
@@ -772,16 +911,23 @@ const CreateProduct = () => {
               {/* Existing Variants */}
               {formData.variants.length > 0 && (
                 <div className="space-y-3">
-                  <h3 className="text-white font-semibold text-sm">Added Variants ({formData.variants.length})</h3>
+                  <h3 className="text-white font-semibold text-sm">
+                    Added Variants ({formData.variants.length})
+                  </h3>
                   {formData.variants.map((variant, index) => (
-                    <div key={index} className="bg-white/5 rounded-xl p-3 flex justify-between items-start">
+                    <div
+                      key={index}
+                      className="bg-white/5 rounded-xl p-3 flex justify-between items-start"
+                    >
                       <div>
                         <p className="text-white font-semibold">{variant.color}</p>
                         <p className="text-[#94A3B8] text-xs">
-                          Price: {variant.price} {variant.discountPrice && `(Disc: ${variant.discountPrice})`}
+                          Price: {variant.price}{" "}
+                          {variant.discountPrice && `(Disc: ${variant.discountPrice})`}
                         </p>
                         <p className="text-[#94A3B8] text-xs mt-1">
-                          Sizes: {variant.sizes.map(s => `${s.size}(${s.stock})`).join(", ")}
+                          Sizes:{" "}
+                          {variant.sizes.map((s) => `${s.size}(${s.stock})`).join(", ")}
                         </p>
                       </div>
                       <button
@@ -804,7 +950,9 @@ const CreateProduct = () => {
           <SectionHeader title="6. Inventory" icon={Box} sectionKey="inventory" />
           {openSections.inventory && (
             <div className="animate-in fade-in slide-in-from-top-2 duration-200">
-              <label className="block text-sm font-semibold text-white mb-2">Total Stock</label>
+              <label className="block text-sm font-semibold text-white mb-2">
+                Total Stock
+              </label>
               <input
                 type="number"
                 name="totalStock"
@@ -823,7 +971,9 @@ const CreateProduct = () => {
           {openSections.shipping && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
               <div>
-                <label className="block text-xs font-semibold text-[#94A3B8] mb-1">Weight</label>
+                <label className="block text-xs font-semibold text-[#94A3B8] mb-1">
+                  Weight
+                </label>
                 <input
                   type="number"
                   name="weight"
@@ -833,7 +983,9 @@ const CreateProduct = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-[#94A3B8] mb-1">Length</label>
+                <label className="block text-xs font-semibold text-[#94A3B8] mb-1">
+                  Length
+                </label>
                 <input
                   type="number"
                   name="length"
@@ -843,7 +995,9 @@ const CreateProduct = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-[#94A3B8] mb-1">Width</label>
+                <label className="block text-xs font-semibold text-[#94A3B8] mb-1">
+                  Width
+                </label>
                 <input
                   type="number"
                   name="width"
@@ -853,7 +1007,9 @@ const CreateProduct = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-[#94A3B8] mb-1">Height</label>
+                <label className="block text-xs font-semibold text-[#94A3B8] mb-1">
+                  Height
+                </label>
                 <input
                   type="number"
                   name="height"
@@ -872,7 +1028,9 @@ const CreateProduct = () => {
           {openSections.delivery && (
             <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
               <div>
-                <label className="block text-sm font-semibold text-white mb-2">Available Locations / Pincodes</label>
+                <label className="block text-sm font-semibold text-white mb-2">
+                  Available Locations / Pincodes
+                </label>
                 <div className="flex gap-2 mb-2">
                   <input
                     type="text"
@@ -880,7 +1038,9 @@ const CreateProduct = () => {
                     onChange={(e) => setNewAddress(e.target.value)}
                     className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#C026D3]/50"
                     placeholder="Enter city or pincode"
-                    onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addAddress())}
+                    onKeyPress={(e) =>
+                      e.key === "Enter" && (e.preventDefault(), addAddress())
+                    }
                   />
                   <button
                     type="button"
@@ -892,9 +1052,16 @@ const CreateProduct = () => {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {formData.deliveryAddresses.map((addr, index) => (
-                    <span key={index} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 text-white text-sm">
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 text-white text-sm"
+                    >
                       {addr}
-                      <button type="button" onClick={() => removeAddress(index)} className="text-red-400 hover:text-red-300">
+                      <button
+                        type="button"
+                        onClick={() => removeAddress(index)}
+                        className="text-red-400 hover:text-red-300"
+                      >
                         <X size={14} />
                       </button>
                     </span>
@@ -902,7 +1069,9 @@ const CreateProduct = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-white mb-2">Return Policy Details</label>
+                <label className="block text-sm font-semibold text-white mb-2">
+                  Return Policy Details
+                </label>
                 <textarea
                   name="returnPolicy"
                   value={formData.returnPolicy}
@@ -940,9 +1109,16 @@ const CreateProduct = () => {
               </div>
               <div className="flex flex-wrap gap-2">
                 {formData.tags.map((tag, index) => (
-                  <span key={index} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#C026D3]/10 text-[#C026D3] text-sm">
+                  <span
+                    key={index}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#C026D3]/10 text-[#C026D3] text-sm"
+                  >
                     #{tag}
-                    <button type="button" onClick={() => removeTag(index)} className="text-red-400 hover:text-red-300">
+                    <button
+                      type="button"
+                      onClick={() => removeTag(index)}
+                      className="text-red-400 hover:text-red-300"
+                    >
                       <X size={14} />
                     </button>
                   </span>
@@ -954,7 +1130,11 @@ const CreateProduct = () => {
 
         {/* 10. Additional Settings */}
         <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-          <SectionHeader title="10. Additional Settings" icon={Settings} sectionKey="settings" />
+          <SectionHeader
+            title="10. Additional Settings"
+            icon={Settings}
+            sectionKey="settings"
+          />
           {openSections.settings && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
               {Object.keys(formData.settings).map((key) => (
@@ -965,7 +1145,9 @@ const CreateProduct = () => {
                     onChange={() => handleSettingChange(key)}
                     className="w-4 h-4 rounded border-white/10 bg-white/5 text-[#C026D3] focus:ring-[#C026D3]"
                   />
-                  <span className="text-white text-sm capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                  <span className="text-white text-sm capitalize">
+                    {key.replace(/([A-Z])/g, " $1").trim()}
+                  </span>
                 </label>
               ))}
             </div>
