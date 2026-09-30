@@ -31,6 +31,7 @@ export const setAuth = ({ token, admin }) => {
   if (token) {
     localStorage.setItem("adminToken", token);
     localStorage.setItem("token", token); // backup key
+    sessionStorage.setItem("adminToken", token);
   }
   if (admin) {
     localStorage.setItem("admin", JSON.stringify(admin));
