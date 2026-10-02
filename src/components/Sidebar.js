@@ -36,12 +36,13 @@ import {
   CheckCircle,
   XCircle,
   Clock,
+  Ruler,
 } from "lucide-react";
 import { FaPercentage, FaShoppingBag } from "react-icons/fa";
 import { PiEmpty } from "react-icons/pi";
 import logo from "../assets/logo.png";
 import Swal from "sweetalert2";
-import { logout as clearAuth } from "../config";
+import { hasStaffPathPermission, logout as clearAuth } from "../config";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -51,6 +52,15 @@ const navItems = [
     icon: Users,
     children: [
       { to: "/dashboard/users", label: "All Users", icon: List },
+    ],
+  },
+  {
+    to: "/dashboard/staff",
+    label: "Staff Management",
+    icon: Users,
+    children: [
+      { to: "/dashboard/staff", label: "All Staff", icon: List },
+      { to: "/dashboard/staff/create", label: "Create Staff", icon: PlusCircle },
     ],
   },
   {
@@ -244,6 +254,28 @@ const navItems = [
       },
     ],
   },
+{
+  to: "/dashboard/stock-management",
+  label: "Stock Management",
+  icon: Boxes,
+  children: [
+    {
+      to: "/dashboard/stock-management",
+      label: "Stock Management",
+      icon: Boxes,
+    },
+    {
+      to: "/dashboard/stock-adjustment",
+      label: "Stock Adjustment",
+      icon: RefreshCw,
+    },
+    {
+      to: "/dashboard/stock-management/audit-history",
+      label: "Audit History",
+      icon: CheckCircle,
+    },
+  ],
+},
   {
     to: "/dashboard/reports",
     label: "Reports",
@@ -253,6 +285,35 @@ const navItems = [
         to: "/dashboard/reports",
         label: "Analytics",
         icon: BarChart3,
+      },
+    ],
+  },
+  {
+    to:"/dashboard/handtags",
+    label: "Hash Tags",
+    icon: Tag,
+    children: [
+      {
+        to: "/dashboard/handtags",
+        label: "All Handtags",
+        icon: Tag,
+      },
+      // {
+      //   to: "/dashboard/handtags/create",
+      //   label: "Create Handtag",
+      //   icon: PlusCircle,
+      // },
+    ],
+  },
+  {
+    to: "/dashboard/size-charts",
+    label: "Size Charts",
+    icon: Ruler,
+    children: [
+      {
+        to: "/dashboard/size-charts",
+        label: "All Size Charts",
+        icon: Ruler,
       },
     ],
   },
@@ -402,6 +463,29 @@ const DropdownItem = ({ to, item, setMobileOpen, collapsed }) => {
 const Sidebar = ({ mobileOpen, setMobileOpen }) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
+  const isStaff = Boolean(localStorage.getItem("staffToken"));
+  const visibleNavItems = isStaff
+    ? navItems
+        .map((item) => {
+          if (!item.children) {
+            return hasStaffPathPermission(item.to) ? item : null;
+          }
+
+          const children = item.children.filter((child) =>
+            hasStaffPathPermission(child.to)
+          );
+          if (!children.length && !hasStaffPathPermission(item.to)) {
+            return null;
+          }
+
+          return {
+            ...item,
+            to: hasStaffPathPermission(item.to) ? item.to : children[0].to,
+            children,
+          };
+        })
+        .filter(Boolean)
+    : navItems;
 
   // ---------- FIXED LOGOUT ----------
   const handleLogout = async () => {
@@ -499,7 +583,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
-        {navItems.map((item) =>
+        {visibleNavItems.map((item) =>
           item.children ? (
             <DropdownItem
               key={item.label}

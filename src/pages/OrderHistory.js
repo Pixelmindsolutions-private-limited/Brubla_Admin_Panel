@@ -1,27 +1,48 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Search, ChevronDown, IndianRupee, Download } from "lucide-react";
+
+const API = "http://31.97.228.17:4077/api/admin";
 
 const OrderHistory = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [customer, setCustomer] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Customer info (mock — replace with API)
-  const customer = {
-    name: "Rahul Kumar",
-    customerId: "CUS001",
-    totalOrders: 3,
-    totalSpent: 7498,
-  };
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const token = sessionStorage.getItem("adminToken");
+        const response = await fetch(`${API}/users/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) throw new Error(data.message || "Failed to load orders");
+        setCustomer(data.user);
+        setOrders(data.orders || []);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOrders();
+  }, [id]);
 
-  // Order data (mock — replace with API)
-  const orders = [
-    { id: "ORD1001", date: "05 Sep", items: 2, amount: 1999, payment: "Razorpay", status: "Delivered" },
-    { id: "ORD0987", date: "20 Aug", items: 1, amount: 999, payment: "COD", status: "Delivered" },
-    { id: "ORD0955", date: "10 Aug", items: 3, amount: 4500, payment: "Razorpay", status: "Cancelled" },
-  ];
+  const totalSpent = orders
+    .filter((order) => order.orderStatus !== "cancelled")
+    .reduce((total, order) => total + (order.finalAmount || 0), 0);
+
+  if (loading) return <div className="p-8 text-center text-[#94A3B8]">Loading customer orders...</div>;
+  if (error) return <div className="p-8 text-center text-red-300">{error}</div>;
 
   const getStatusBadge = (status) => {
+    const normalizedStatus = status
+      ? status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
+      : "Pending";
     const styles = {
       Delivered: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
       Pending: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
@@ -29,7 +50,7 @@ const OrderHistory = () => {
       Shipped: "bg-blue-500/20 text-blue-400 border-blue-500/30",
       "In Transit": "bg-purple-500/20 text-purple-400 border-purple-500/30",
     };
-    return `px-2.5 py-1 rounded-full text-xs font-medium border ${styles[status] || styles.Pending}`;
+    return `px-2.5 py-1 rounded-full text-xs font-medium border ${styles[normalizedStatus] || styles.Pending}`;
   };
 
   const getPaymentBadge = (payment) => {
@@ -61,12 +82,12 @@ const OrderHistory = () => {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#C026D3] to-[#2563EB] flex items-center justify-center text-white font-bold text-xl">
-              {customer.name?.charAt(0).toUpperCase()}
+              {customer?.name?.charAt(0).toUpperCase() || "C"}
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white">{customer.name}</h2>
+              <h2 className="text-lg font-bold text-white">{customer?.name}</h2>
               <p className="text-xs text-[#94A3B8] font-mono mt-0.5">
-                Customer ID: {customer.customerId}
+                Customer ID: {customer?._id}
               </p>
             </div>
           </div>
@@ -74,13 +95,13 @@ const OrderHistory = () => {
           <div className="flex gap-6">
             <div className="text-center">
               <p className="text-xs text-[#94A3B8]">Total Orders</p>
-              <p className="text-xl font-bold text-white mt-1">{customer.totalOrders}</p>
+              <p className="text-xl font-bold text-white mt-1">{orders.length}</p>
             </div>
             <div className="text-center">
               <p className="text-xs text-[#94A3B8]">Total Spent</p>
               <p className="text-xl font-bold text-[#C026D3] mt-1 flex items-center gap-0.5">
                 <IndianRupee size={16} />
-                {customer.totalSpent.toLocaleString()}
+                {totalSpent.toLocaleString()}
               </p>
             </div>
           </div>
@@ -131,7 +152,7 @@ const OrderHistory = () => {
           <table className="w-full text-left">
             <thead className="bg-white/5 border-b border-white/10">
               <tr>
-                {["Order ID", "Date", "Items", "Amount", "Payment", "Status"].map((h) => (
+                {["Order ID", "Date", "Products", "Amount", "Payment", "Status"].map((h) => (
                   <th key={h} className="px-4 py-3 text-xs font-semibold text-[#94A3B8] uppercase tracking-wider whitespace-nowrap">
                     {h}
                   </th>
@@ -140,18 +161,29 @@ const OrderHistory = () => {
             </thead>
             <tbody className="divide-y divide-white/5">
               {orders.map((row) => (
-                <tr key={row.id} className="hover:bg-white/5 transition-colors">
-                  <td className="px-4 py-3 text-sm text-white font-medium font-mono">{row.id}</td>
-                  <td className="px-4 py-3 text-sm text-[#94A3B8] whitespace-nowrap">{row.date}</td>
-                  <td className="px-4 py-3 text-sm text-white">{row.items}</td>
+                <tr key={row._id} onClick={() => navigate("/dashboard/orders", { state: { orderId: row.orderId } })} className="cursor-pointer hover:bg-white/5 transition-colors">
+                  <td className="px-4 py-3 text-sm text-white font-medium font-mono">{row.orderId}</td>
+                  <td className="px-4 py-3 text-sm text-[#94A3B8] whitespace-nowrap">{new Date(row.createdAt).toLocaleDateString()}</td>
+                  <td className="px-4 py-3 text-sm text-white">
+                    <div className="space-y-1">
+                      {row.items?.length ? row.items.map((item, index) => (
+                        <div key={item._id || index}>
+                          <p>{item.productName || "Product details unavailable"}</p>
+                          <p className="text-xs text-[#94A3B8]">
+                            {[item.color, item.sizeName].filter(Boolean).join(" / ")} {item.quantity ? `· Qty ${item.quantity}` : ""}
+                          </p>
+                        </div>
+                      )) : <span className="text-[#94A3B8]">No products listed</span>}
+                    </div>
+                  </td>
                   <td className="px-4 py-3 text-sm text-white font-semibold whitespace-nowrap">
-                    ₹{row.amount.toLocaleString()}
+                    ₹{(row.finalAmount || 0).toLocaleString()}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={getPaymentBadge(row.payment)}>{row.payment}</span>
+                    <span className={getPaymentBadge(row.paymentMethod)}>{row.paymentMethod || "—"}</span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={getStatusBadge(row.status)}>{row.status}</span>
+                    <span className={getStatusBadge(row.orderStatus)}>{row.orderStatus}</span>
                   </td>
                 </tr>
               ))}
@@ -165,7 +197,7 @@ const OrderHistory = () => {
             Showing {orders.length} orders
           </p>
           <div className="text-sm text-[#94A3B8]">
-            Total: <span className="text-white font-semibold">₹{customer.totalSpent.toLocaleString()}</span>
+            Total: <span className="text-white font-semibold">₹{totalSpent.toLocaleString()}</span>
           </div>
         </div>
       </div>

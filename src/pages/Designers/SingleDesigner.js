@@ -40,7 +40,9 @@ const SingleDesigner = () => {
             });
 
             if (response.data.success) {
-                setDesigner(response.data.designer);
+                setDesigner(
+                    response.data.designer || response.data.data?.designer
+                );
                 setStats(response.data.stats);
                 setProducts(response.data.products || []);
             }

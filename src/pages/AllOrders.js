@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   AlertCircle,
   Loader2,
@@ -10,9 +10,25 @@ import {
   Eye,
   RefreshCw,
   X,
+  BellRing,
 } from "lucide-react";
 
 const API_URL = "http://31.97.228.17:4077/api/admin/orders";
+const KNOWN_ORDER_IDS_STORAGE_KEY = "adminKnownOrderIds";
+const getOrdersAuthToken = () =>
+  sessionStorage.getItem("adminToken") ||
+  localStorage.getItem("staffToken") ||
+  localStorage.getItem("adminToken") ||
+  localStorage.getItem("token") ||
+  "";
+
+const persistKnownOrderIds = (ids) => {
+  try {
+    sessionStorage.setItem(KNOWN_ORDER_IDS_STORAGE_KEY, JSON.stringify([...ids]));
+  } catch (err) {
+    console.warn("Could not persist known order IDs:", err.message);
+  }
+};
 
 const statusColors = {
   pending: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
@@ -36,7 +52,6 @@ const StatCard = ({ label, value, accent }) => (
   </div>
 );
 
-/* ---------- Order Details Modal ---------- */
 const OrderModal = ({ order, onClose }) => {
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && onClose();
@@ -64,7 +79,6 @@ const OrderModal = ({ order, onClose }) => {
         className="relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-white/10 bg-[#050d28] p-6 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="mb-5 flex items-start justify-between gap-4 border-b border-white/10 pb-4">
           <div>
             <p className="text-xs uppercase tracking-wider text-[#94A3B8]">
@@ -96,9 +110,7 @@ const OrderModal = ({ order, onClose }) => {
           </button>
         </div>
 
-        {/* Detail Cards */}
         <div className="grid gap-4 md:grid-cols-2">
-          {/* Customer */}
           <div className="rounded-2xl border border-white/10 bg-[#071236]/70 p-5">
             <p className="mb-3 flex items-center gap-2 text-base font-bold text-white">
               <User size={18} className="text-[#C026D3]" /> Customer
@@ -108,7 +120,6 @@ const OrderModal = ({ order, onClose }) => {
             <p className="text-sm text-[#94A3B8]">{order.userId?.mobile}</p>
           </div>
 
-          {/* Delivery */}
           <div className="rounded-2xl border border-white/10 bg-[#071236]/70 p-5">
             <p className="mb-3 flex items-center gap-2 text-base font-bold text-white">
               <MapPin size={18} className="text-[#C026D3]" /> Delivery
@@ -124,7 +135,6 @@ const OrderModal = ({ order, onClose }) => {
             </p>
           </div>
 
-          {/* Payment */}
           <div className="rounded-2xl border border-white/10 bg-[#071236]/70 p-5">
             <p className="mb-3 flex items-center gap-2 text-base font-bold text-white">
               <CreditCard size={18} className="text-[#C026D3]" /> Payment
@@ -143,7 +153,6 @@ const OrderModal = ({ order, onClose }) => {
             </p>
           </div>
 
-          {/* Order Info */}
           <div className="rounded-2xl border border-white/10 bg-[#071236]/70 p-5">
             <p className="mb-3 text-base font-bold text-white">Order Info</p>
             <p className="text-sm text-[#94A3B8]">
@@ -160,7 +169,6 @@ const OrderModal = ({ order, onClose }) => {
           </div>
         </div>
 
-        {/* Items */}
         <div className="mt-5">
           <p className="mb-3 text-base font-bold text-white">
             Items ({order.items?.length})
@@ -171,14 +179,19 @@ const OrderModal = ({ order, onClose }) => {
                 key={item._id}
                 className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#071236]/70 p-3"
               >
-                {item.variant?.mainImage && (
+                {(item.productImage || item.variant?.mainImage) && (
                   <img
-                    src={item.variant.mainImage}
-                    alt="product"
+                    src={item.productImage || item.variant.mainImage}
+                    alt={item.productName || "product"}
                     className="h-14 w-14 rounded-lg object-cover"
                   />
                 )}
                 <div className="flex-1 min-w-0">
+                  {item.productName && (
+                    <p className="truncate text-sm font-semibold text-white">
+                      {item.productName}
+                    </p>
+                  )}
                   <p className="truncate text-sm text-white">
                     {item.variant?.color} • {item.variant?.size}
                   </p>
@@ -198,7 +211,6 @@ const OrderModal = ({ order, onClose }) => {
   );
 };
 
-/* ---------- Main Component ---------- */
 const AllOrders = ({ title, description }) => {
   const [orders, setOrders] = useState([]);
   const [stats, setStats] = useState(null);
@@ -206,18 +218,92 @@ const AllOrders = ({ title, description }) => {
   const [error, setError] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  const knownOrderIdsRef = useRef(new Set());
+  const hasKnownOrdersBaselineRef = useRef(null);
+  if (hasKnownOrdersBaselineRef.current === null) {
+    try {
+      const savedIds = sessionStorage.getItem(KNOWN_ORDER_IDS_STORAGE_KEY);
+      if (savedIds !== null) {
+        knownOrderIdsRef.current = new Set(JSON.parse(savedIds));
+        hasKnownOrdersBaselineRef.current = true;
+      } else {
+        hasKnownOrdersBaselineRef.current = false;
+      }
+    } catch {
+      try { sessionStorage.removeItem(KNOWN_ORDER_IDS_STORAGE_KEY); } catch { /* storage unavailable */ }
+      hasKnownOrdersBaselineRef.current = false;
+    }
+  }
+  const pollingIntervalRef = useRef(null);
+  const audioRef = useRef(null);
+  const isPollingRef = useRef(false);
+
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const fetchOrders = async () => {
-    setLoading(true);
-    setError(null);
+  const playNotificationSound = async () => {
+    try {
+      if (!audioRef.current) {
+        audioRef.current = new Audio("/sounds/new-order.mp3");
+        audioRef.current.preload = "auto";
+        audioRef.current.volume = 0.8;
+      }
+      audioRef.current.currentTime = 0;
+      await audioRef.current.play();
+    } catch (err) {
+      console.warn("Order sound could not be played:", err.message);
+    }
+  };
 
-    // ✅ Grab token from sessionStorage (set by Login.js)
-    const token = sessionStorage.getItem("adminToken");
+  // ==================================================
+  // 🔊 Detect New Orders
+  // ==================================================
+  const detectNewOrders = (newOrders) => {
+    if (!hasKnownOrdersBaselineRef.current) {
+      newOrders.forEach((o) => knownOrderIdsRef.current.add(o._id));
+      hasKnownOrdersBaselineRef.current = true;
+      persistKnownOrderIds(knownOrderIdsRef.current);
+      console.log(
+        `🔍 Initial load — registered ${knownOrderIdsRef.current.size} orders`
+      );
+      return;
+    }
+
+    const brandNewOrders = newOrders.filter(
+      (o) => !knownOrderIdsRef.current.has(o._id)
+    );
+
+    if (brandNewOrders.length > 0) {
+      console.log(`🎉 ${brandNewOrders.length} NEW ORDER(S) DETECTED!`);
+      brandNewOrders.forEach((o) => knownOrderIdsRef.current.add(o._id));
+      persistKnownOrderIds(knownOrderIdsRef.current);
+      playNotificationSound();
+      setUnreadCount((prev) => prev + brandNewOrders.length);
+    } else {
+      // Keep the baseline across page navigation and browser refreshes in this tab.
+      newOrders.forEach((o) => knownOrderIdsRef.current.add(o._id));
+      persistKnownOrderIds(knownOrderIdsRef.current);
+      console.log("✅ No new orders");
+    }
+  };
+
+  // ==================================================
+  // 🔄 Fetch Orders
+  // ==================================================
+  const fetchOrders = async (silent = false) => {
+    if (silent && isPollingRef.current) return;
+    if (silent) isPollingRef.current = true;
+    if (!silent) setLoading(true);
+    if (!silent) setError(null);
+
+    const token = getOrdersAuthToken();
 
     if (!token) {
       setError("No active session. Please log in again.");
-      setLoading(false);
+      if (silent) isPollingRef.current = false;
+      if (!silent) setLoading(false);
       setTimeout(() => navigate("/"), 1500);
       return;
     }
@@ -230,12 +316,16 @@ const AllOrders = ({ title, description }) => {
         },
       });
 
-      // ✅ Handle expired / invalid token
       if (res.status === 401 || res.status === 403) {
         sessionStorage.removeItem("adminToken");
         sessionStorage.removeItem("admin");
+        localStorage.removeItem("adminToken");
+        localStorage.removeItem("token");
+        localStorage.removeItem("staffToken");
+        localStorage.removeItem("staffUser");
+        localStorage.removeItem("staffPermissions");
         setError("Session expired. Please log in again.");
-        setLoading(false);
+        if (!silent) setLoading(false);
         setTimeout(() => navigate("/"), 1500);
         return;
       }
@@ -245,19 +335,59 @@ const AllOrders = ({ title, description }) => {
       const data = await res.json();
       if (!data.success) throw new Error("API returned success: false");
 
-      setOrders(data.orders || []);
+      const fetchedOrders = data.orders || [];
+
+      detectNewOrders(fetchedOrders);
+
+      setOrders(fetchedOrders);
       setStats(data.stats || null);
+      setInitialLoadComplete(true);
     } catch (err) {
-      setError(err.message || "Failed to load orders");
+      if (!silent) {
+        setError(err.message || "Failed to load orders");
+      } else {
+        console.warn("⚠️ Silent polling error:", err.message);
+      }
     } finally {
-      setLoading(false);
+      if (silent) isPollingRef.current = false;
+      if (!silent) setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchOrders();
+    fetchOrders(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!initialLoadComplete) return undefined;
+    pollingIntervalRef.current = setInterval(() => {
+      fetchOrders(true);
+    }, 5000);
+
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+        console.log("🛑 Polling stopped");
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialLoadComplete]);
+
+  useEffect(() => {
+    const orderId = location.state?.orderId;
+    if (!orderId) return;
+    const token = getOrdersAuthToken();
+    fetch(`${API_URL}/${orderId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success && data.order) setSelectedOrder(data.order);
+      })
+      .catch((err) => console.error("Failed to load selected order:", err));
+  }, [location.state]);
 
   if (loading) {
     return (
@@ -275,7 +405,7 @@ const AllOrders = ({ title, description }) => {
         <h1 className="text-2xl font-bold text-white">{title || "All Orders"}</h1>
         <p className="mt-3 text-red-300">{error}</p>
         <button
-          onClick={fetchOrders}
+          onClick={() => fetchOrders(false)}
           className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#C026D3] px-4 py-2 text-sm font-semibold text-white hover:bg-[#a21caf]"
         >
           <RefreshCw size={16} /> Retry
@@ -286,23 +416,35 @@ const AllOrders = ({ title, description }) => {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-4">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white">{title || "All Orders"}</h1>
+          <h1 className="text-2xl font-bold text-white">
+            {title || "All Orders"}
+          </h1>
           {description && (
             <p className="mt-1 text-sm text-[#94A3B8]">{description}</p>
           )}
         </div>
-        <button
-          onClick={fetchOrders}
-          className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-[#071236]/70 px-3 py-2 text-sm text-[#94A3B8] hover:text-white"
-        >
-          <RefreshCw size={16} /> Refresh
-        </button>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/15 px-3 py-2 text-sm font-semibold text-emerald-300">
+            <BellRing size={16} /> Notifications ON
+            {unreadCount > 0 && (
+              <span className="ml-1 rounded-full bg-red-500 px-2 py-0.5 text-xs text-white">
+                {unreadCount} new
+              </span>
+            )}
+          </div>
+
+          <button
+            onClick={() => fetchOrders(false)}
+            className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-[#071236]/70 px-3 py-2 text-sm text-[#94A3B8] hover:text-white"
+          >
+            <RefreshCw size={16} /> Refresh
+          </button>
+        </div>
       </div>
 
-      {/* Stats */}
       {stats && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           <StatCard label="Total Orders" value={stats.totalOrders} />
@@ -333,9 +475,7 @@ const AllOrders = ({ title, description }) => {
         </div>
       )}
 
-      {/* Orders Table */}
       <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#071236]/60">
-        {/* Table Header */}
         <div className="grid grid-cols-[1.4fr_1fr_1fr_1.4fr_0.8fr] items-center gap-4 border-b border-white/10 bg-[#0B1A45] px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[#94A3B8]">
           <span>Order</span>
           <span>Status</span>
@@ -344,7 +484,6 @@ const AllOrders = ({ title, description }) => {
           <span className="text-right">Actions</span>
         </div>
 
-        {/* Empty */}
         {orders.length === 0 ? (
           <div className="p-8 text-center text-[#94A3B8]">No orders found.</div>
         ) : (
@@ -362,7 +501,6 @@ const AllOrders = ({ title, description }) => {
                 className="border-b border-white/5 last:border-b-0"
               >
                 <div className="grid grid-cols-[1.4fr_1fr_1fr_1.4fr_0.8fr] items-center gap-4 px-6 py-4 hover:bg-white/5">
-                  {/* Order */}
                   <div className="flex min-w-0 items-center gap-3">
                     <Package size={18} className="shrink-0 text-[#C026D3]" />
                     <div className="min-w-0">
@@ -376,7 +514,6 @@ const AllOrders = ({ title, description }) => {
                     </div>
                   </div>
 
-                  {/* Status */}
                   <div>
                     <span
                       className={`inline-block rounded-full border px-3 py-1 text-xs font-medium capitalize ${statusClass}`}
@@ -385,7 +522,6 @@ const AllOrders = ({ title, description }) => {
                     </span>
                   </div>
 
-                  {/* Payment */}
                   <div>
                     <span
                       className={`inline-block rounded-full px-3 py-1 text-xs font-medium capitalize ${payClass}`}
@@ -397,7 +533,6 @@ const AllOrders = ({ title, description }) => {
                     </p>
                   </div>
 
-                  {/* Customer */}
                   <div className="min-w-0">
                     <p className="truncate text-sm text-white">
                       {order.userId?.name}
@@ -407,7 +542,6 @@ const AllOrders = ({ title, description }) => {
                     </p>
                   </div>
 
-                  {/* Actions */}
                   <div className="flex justify-end">
                     <button
                       onClick={() => setSelectedOrder(order)}
@@ -424,7 +558,6 @@ const AllOrders = ({ title, description }) => {
         )}
       </div>
 
-      {/* Center Popup Modal */}
       {selectedOrder && (
         <OrderModal
           order={selectedOrder}

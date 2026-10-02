@@ -9,7 +9,6 @@ import {
   Calendar,
   MapPin,
   ShoppingBag,
-  Heart,
   Shield,
   CheckCircle,
   XCircle,
@@ -17,12 +16,10 @@ import {
   Trash2,
   Home,
   Briefcase,
-  Clock,
   Wallet,
   Plus,
   IndianRupee,
   FileText,
-  X,
 } from "lucide-react";
 
 const API = "http://31.97.228.17:4077/api/admin";
@@ -32,7 +29,6 @@ const SingleCustomer = () => {
   const navigate = useNavigate();
   const [customer, setCustomer] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showAllAddresses, setShowAllAddresses] = useState(false);
 
   const getToken = () => sessionStorage.getItem("adminToken");
 
@@ -126,20 +122,28 @@ const SingleCustomer = () => {
     );
   }
 
-  // Order summary calculations (mock — replace with real data)
+  // ===== Order Summary from real orders array =====
+  const orders = customer.orders || [];
   const orderSummary = {
-    total: customer.orders?.length || 8,
-    completed: 6,
-    cancelled: 1,
-    returned: 1,
-    totalSpent: 12450,
+    total: orders.length,
+    completed: orders.filter((o) => o.orderStatus === "delivered" || o.orderStatus === "completed").length,
+    cancelled: orders.filter((o) => o.orderStatus === "cancelled").length,
+    returned: orders.filter((o) => o.orderStatus === "returned").length,
+    totalSpent: orders
+      .filter((o) => o.orderStatus !== "cancelled")
+      .reduce((sum, o) => sum + (o.finalAmount || 0), 0),
   };
 
-  const defaultAddress = customer.addresses?.[0];
+  // ===== Default Address =====
+  const defaultAddress =
+    customer.addresses?.find((a) => a.isDefault) || customer.addresses?.[0];
+
+  // ===== All Addresses =====
+  const allAddresses = customer.addresses || [];
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* ========== HEADER ========== */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <button
@@ -149,7 +153,9 @@ const SingleCustomer = () => {
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white">Customer Details</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-white">
+              Customer Details
+            </h1>
             <p className="text-[#94A3B8] text-sm mt-1">
               View complete customer information
             </p>
@@ -157,7 +163,6 @@ const SingleCustomer = () => {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          {/* NEW: Add Customer */}
           <button
             onClick={() => navigate("/dashboard/customers/create")}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 transition-all"
@@ -166,16 +171,18 @@ const SingleCustomer = () => {
             Add Customer
           </button>
 
-          {/* Edit Customer */}
           <button
-            onClick={() => navigate(`/dashboard/customers/edit/${customer._id}`)}
+            onClick={() =>
+              navigate(`/dashboard/customers/edit/${customer._id}`, {
+                state: { customer },
+              })
+            }
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 transition-all"
           >
             <Edit size={16} />
             Edit Customer
           </button>
 
-          {/* Delete */}
           <button
             onClick={deleteCustomer}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all"
@@ -186,18 +193,19 @@ const SingleCustomer = () => {
         </div>
       </div>
 
-      {/* Main Grid */}
+      {/* ========== MAIN GRID ========== */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* ========== LEFT COLUMN ========== */}
         <div className="lg:col-span-1 space-y-6">
-
           {/* Profile Card */}
           <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
             <div className="text-center">
               <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-[#C026D3] to-[#2563EB] flex items-center justify-center text-white text-3xl font-bold mb-4">
                 {customer.name?.charAt(0).toUpperCase() || "U"}
               </div>
-              <h2 className="text-xl font-bold text-white">{customer.name || "Unnamed"}</h2>
+              <h2 className="text-xl font-bold text-white">
+                {customer.name || "Unnamed"}
+              </h2>
               <p className="text-[#94A3B8] text-xs mt-1 font-mono">
                 ID: {customer._id?.slice(-8)}
               </p>
@@ -210,7 +218,11 @@ const SingleCustomer = () => {
                       : "bg-red-500/20 text-red-400"
                   }`}
                 >
-                  {customer.isVerified ? <CheckCircle size={12} /> : <XCircle size={12} />}
+                  {customer.isVerified ? (
+                    <CheckCircle size={12} />
+                  ) : (
+                    <XCircle size={12} />
+                  )}
                   {customer.isVerified ? "Active" : "Unverified"}
                 </span>
               </div>
@@ -219,11 +231,15 @@ const SingleCustomer = () => {
             <div className="mt-6 pt-6 border-t border-white/10 space-y-3">
               <div className="flex items-center gap-3 text-[#94A3B8]">
                 <Mail size={16} className="text-[#C026D3] shrink-0" />
-                <span className="text-sm truncate">{customer.email || "No email"}</span>
+                <span className="text-sm truncate">
+                  {customer.email || "No email"}
+                </span>
               </div>
               <div className="flex items-center gap-3 text-[#94A3B8]">
                 <Phone size={16} className="text-[#C026D3] shrink-0" />
-                <span className="text-sm">{customer.mobile || "No mobile"}</span>
+                <span className="text-sm">
+                  {customer.mobile || "No mobile"}
+                </span>
               </div>
               <div className="flex items-center gap-3 text-[#94A3B8]">
                 <Calendar size={16} className="text-[#C026D3] shrink-0" />
@@ -248,7 +264,6 @@ const SingleCustomer = () => {
 
         {/* ========== RIGHT COLUMN ========== */}
         <div className="lg:col-span-2 space-y-6">
-
           {/* Customer Information */}
           <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
             <h3 className="text-sm font-semibold text-[#C026D3] mb-4 flex items-center gap-2">
@@ -292,43 +307,67 @@ const SingleCustomer = () => {
             </div>
           </div>
 
-          {/* Address Section */}
-          {defaultAddress && (
-            <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-[#C026D3] flex items-center gap-2">
-                  <MapPin size={16} /> ADDRESS
-                </h3>
-                {customer.addresses?.length > 1 && (
-                  <button
-                    onClick={() => setShowAllAddresses(true)}
-                    className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
-                  >
-                    View All Addresses ({customer.addresses.length})
-                  </button>
-                )}
-              </div>
+          {/* ========== ADDRESSES — ALL VISIBLE ========== */}
+          <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
+            <h3 className="text-sm font-semibold text-[#C026D3] mb-4 flex items-center gap-2">
+              <MapPin size={16} /> ADDRESSES ({allAddresses.length})
+            </h3>
 
-              <div className="bg-white/5 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  {defaultAddress.type === "home" ? (
-                    <Home size={14} className="text-emerald-400" />
-                  ) : (
-                    <Briefcase size={14} className="text-blue-400" />
-                  )}
-                  <span className="text-white text-sm font-semibold capitalize">
-                    Default ({defaultAddress.type})
-                  </span>
-                </div>
-                <p className="text-[#94A3B8] text-sm">{defaultAddress.fullName}</p>
-                <p className="text-[#94A3B8] text-sm">{defaultAddress.mobile}</p>
-                <p className="text-white text-sm mt-2">{defaultAddress.address}</p>
-                <p className="text-[#94A3B8] text-sm">
-                  {defaultAddress.city}, {defaultAddress.state} - {defaultAddress.pincode}
-                </p>
+            {allAddresses.length === 0 ? (
+              <p className="text-sm text-[#94A3B8] text-center py-6">
+                No addresses saved
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {allAddresses.map((address, index) => (
+                  <div
+                    key={address._id || index}
+                    className={`rounded-xl p-4 border transition-all ${
+                      address.isDefault
+                        ? "bg-emerald-500/5 border-emerald-500/30"
+                        : "bg-white/5 border-white/10"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        {address.type === "home" ? (
+                          <Home size={14} className="text-emerald-400" />
+                        ) : address.type === "work" ? (
+                          <Briefcase size={14} className="text-blue-400" />
+                        ) : (
+                          <MapPin size={14} className="text-purple-400" />
+                        )}
+                        <span className="text-white text-sm font-semibold capitalize">
+                          {address.type || "Other"}
+                        </span>
+                        {address.isDefault && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
+                            Default
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <p className="text-[#94A3B8] text-sm">
+                      <span className="text-white font-medium">
+                        {address.fullName}
+                      </span>{" "}
+                      • {address.mobile}
+                    </p>
+                    <p className="text-white text-sm mt-2">{address.address}</p>
+                    <p className="text-[#94A3B8] text-sm">
+                      {address.city}, {address.state} - {address.pincode}
+                    </p>
+                    {address.landmark && (
+                      <p className="text-[#94A3B8] text-xs mt-1">
+                        Landmark: {address.landmark}
+                      </p>
+                    )}
+                  </div>
+                ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Order Summary */}
           <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
@@ -338,7 +377,9 @@ const SingleCustomer = () => {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               <div className="bg-white/5 rounded-xl p-4 text-center">
-                <p className="text-2xl font-bold text-white">{orderSummary.total}</p>
+                <p className="text-2xl font-bold text-white">
+                  {orderSummary.total}
+                </p>
                 <p className="text-xs text-[#94A3B8]">Total Orders</p>
               </div>
               <div className="bg-white/5 rounded-xl p-4 text-center">
@@ -364,15 +405,19 @@ const SingleCustomer = () => {
             <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-[#C026D3]/10 to-[#2563EB]/10 border border-[#C026D3]/20">
               <div className="flex items-center gap-2">
                 <IndianRupee size={18} className="text-[#C026D3]" />
-                <span className="text-sm text-white font-medium">Total Spent</span>
+                <span className="text-sm text-white font-medium">
+                  Total Spent
+                </span>
               </div>
               <span className="text-xl font-bold text-white">
-                ₹{orderSummary.totalSpent.toLocaleString()}
+                ₹{orderSummary.totalSpent.toFixed(2)}
               </span>
             </div>
 
             <button
-              onClick={() => navigate(`/dashboard/orders?customer=${customer._id}`)}
+              onClick={() =>
+                navigate(`/dashboard/customers/${customer._id}/orders`)
+              }
               className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm transition-all"
             >
               <FileText size={16} /> View Order History
@@ -380,57 +425,6 @@ const SingleCustomer = () => {
           </div>
         </div>
       </div>
-
-      {/* ========== VIEW ALL ADDRESSES MODAL ========== */}
-      {showAllAddresses && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#071236] border border-white/10 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-5 border-b border-white/10">
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <MapPin size={18} className="text-[#C026D3]" />
-                All Addresses ({customer.addresses.length})
-              </h3>
-              <button
-                onClick={() => setShowAllAddresses(false)}
-                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-[#94A3B8] hover:text-white"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="overflow-y-auto p-5 space-y-3">
-              {customer.addresses.map((address, index) => (
-                <div key={address._id || index} className="bg-white/5 rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      {address.type === "home" ? (
-                        <Home size={14} className="text-emerald-400" />
-                      ) : (
-                        <Briefcase size={14} className="text-blue-400" />
-                      )}
-                      <span className="text-white text-sm font-semibold capitalize">
-                        {address.type}
-                      </span>
-                      {address.isDefault && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
-                          Default
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <p className="text-[#94A3B8] text-sm">{address.fullName} • {address.mobile}</p>
-                  <p className="text-white text-sm mt-2">{address.address}</p>
-                  <p className="text-[#94A3B8] text-sm">
-                    {address.city}, {address.state} - {address.pincode}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

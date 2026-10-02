@@ -26,6 +26,7 @@ import {
   Info,
   Layers,
   Video,
+  Ruler,
 } from "lucide-react";
 
 const API = "http://31.97.228.17:4077/api/admin";
@@ -36,6 +37,7 @@ const SingleProduct = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeMedia, setActiveMedia] = useState(0);
+  const [sizeChart, setSizeChart] = useState(null); // ✅ NEW
 
   // Collapsible sections state (all open by default)
   const [openSections, setOpenSections] = useState({
@@ -43,6 +45,7 @@ const SingleProduct = () => {
     description: true,
     specs: true,
     variants: true,
+    sizeChart: true, // ✅ NEW
     inventory: true,
     shipping: true,
     returns: true,
@@ -79,8 +82,24 @@ const SingleProduct = () => {
     }
   };
 
+  // ✅ NEW: Fetch size chart for this product
+  const fetchSizeChart = async () => {
+    setSizeChart(null);
+    try {
+      const token = getToken();
+      const res = await axios.get(`${API}/size-charts/product/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.data.success) setSizeChart(res.data.data);
+    } catch (err) {
+      // Silent fail — size chart optional hai
+      setSizeChart(null);
+    }
+  };
+
   useEffect(() => {
     fetchProduct();
+    fetchSizeChart(); // ✅ NEW
   }, [id]);
 
   const toggleSection = (key) => {
@@ -483,7 +502,77 @@ const SingleProduct = () => {
         )}
       </div>
 
-      {/* 5. Inventory */}
+      {/* ✅ 5. Size Chart (NEW) */}
+      {sizeChart && (
+        <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10">
+          <button
+            onClick={() => toggleSection("sizeChart")}
+            className="w-full flex items-center justify-between p-5"
+          >
+            <h3 className="text-sm font-semibold text-[#C026D3] flex items-center gap-2">
+              <Ruler size={16} /> Size Chart
+            </h3>
+            {openSections.sizeChart ? (
+              <ChevronDown size={18} className="text-[#94A3B8]" />
+            ) : (
+              <ChevronRight size={18} className="text-[#94A3B8]" />
+            )}
+          </button>
+          {openSections.sizeChart && (
+            <div className="px-5 pb-5 border-t border-white/5 pt-4">
+              {/* Table */}
+              <div className="overflow-x-auto bg-white rounded-xl">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-black">
+                        Size
+                      </th>
+                      {sizeChart.measurements?.map((m) => (
+                        <th
+                          key={m}
+                          className="border border-gray-300 px-4 py-3 text-left text-sm font-bold text-black"
+                        >
+                          {m}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sizeChart.sizes?.map((row, idx) => (
+                      <tr
+                        key={idx}
+                        className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                      >
+                        <td className="border border-gray-300 px-4 py-3 text-sm font-semibold text-black">
+                          {row.size}
+                        </td>
+                        {sizeChart.measurements?.map((m) => (
+                          <td
+                            key={m}
+                            className="border border-gray-300 px-4 py-3 text-sm text-black"
+                          >
+                            {row.values?.[m] || "—"}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Notes */}
+              {sizeChart.notes && (
+                <p className="text-xs text-[#94A3B8] mt-3 italic">
+                  <strong>Note:</strong> {sizeChart.notes}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 6. Inventory */}
       <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10">
         <button
           onClick={() => toggleSection("inventory")}
@@ -503,26 +592,26 @@ const SingleProduct = () => {
             <div>
               <p className="text-xs text-[#94A3B8]">Total Stock</p>
               <p className="text-lg font-bold text-white mt-1">
-                {product.totalStock || 0}
+                {product.variants?.reduce((total, variant) => total + (variant.sizes || []).reduce((sum, size) => sum + (Number(size.stock) || 0), 0), 0) ?? product.totalStock ?? 0}
               </p>
             </div>
             <div>
               <p className="text-xs text-[#94A3B8]">Warehouse</p>
               <p className="text-sm text-white mt-1">
-                {product.warehouse || "Default Warehouse"}
+                {product.warehouse || "Not configured"}
               </p>
             </div>
             <div>
               <p className="text-xs text-[#94A3B8]">Low Stock Alert</p>
               <p className="text-sm text-white mt-1">
-                {product.lowStockAlert || 5} units
+                {product.lowStockThreshold == null ? "Not configured" : `${product.lowStockThreshold} units`}
               </p>
             </div>
           </div>
         )}
       </div>
 
-      {/* 6. Shipping & Package Details */}
+      {/* 7. Shipping & Package Details */}
       <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10">
         <button
           onClick={() => toggleSection("shipping")}
@@ -556,7 +645,7 @@ const SingleProduct = () => {
         )}
       </div>
 
-      {/* 7. Return & Exchange */}
+      {/* 8. Return & Exchange */}
       <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10">
         <button
           onClick={() => toggleSection("returns")}
@@ -609,7 +698,7 @@ const SingleProduct = () => {
         )}
       </div>
 
-      {/* 8. Product Tags */}
+      {/* 9. Product Tags */}
       <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10">
         <button
           onClick={() => toggleSection("tags")}
@@ -649,7 +738,7 @@ const SingleProduct = () => {
         )}
       </div>
 
-      {/* 9. Additional Settings */}
+      {/* 10. Additional Settings */}
       <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10">
         <button
           onClick={() => toggleSection("settings")}
@@ -690,7 +779,7 @@ const SingleProduct = () => {
         )}
       </div>
 
-      {/* 10. Activity History */}
+      {/* 11. Activity History */}
       <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10">
         <button
           onClick={() => toggleSection("activity")}

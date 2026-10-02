@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./components/PrivateRoute";
 import "./App.css";
 import Login from "./components/Login";
+import StaffLogin from "./pages/StaffLogin";
 import AllUsers from "./pages/Users/AllUsers";
 import SingleUser from "./pages/Users/SingleUser";
 import EditUser from "./pages/Users/EditUser";
@@ -24,6 +25,7 @@ import LatestProducts from "./pages/products/LatestProducts";
 import AdminUserWallet from "./pages/Users/AdminUserWallet";
 import AllDesigners from "./pages/Designers/AllDesigners";
 import SingleDesigner from "./pages/Designers/SingleDesigner";
+import EditDesigner from "./pages/Designers/EditDesigner";
 import PendingDesigners from "./pages/Designers/PendingDesigners";
 import DesignerProducts from "./pages/Designers/DesignerProducts";
 import PendingDesignerProducts from "./pages/Designers/PendingDesignerProducts";
@@ -74,7 +76,7 @@ import Tracking from "./pages/Shippment&Delivery/Tracking";
 import ShippingOrders from "./pages/Shippment&Delivery/ShippingOrders";
 import Stockmanagement from "./pages/Stockmanagement/Stockmanagement";
 import StockAuditHistory from "./pages/Stockmanagement/StockAuditHistory";
-import StockAdjustment from "./pages/Stockmanagement/Stockadjustment";
+import StockAdjustment from "./pages/Stockmanagement/StockAdjustmentDynamic";
 import Categories from "./pages/All Categories/Categories";
 import AddCategory from "./pages/All Categories/AddCategory";
 import AddSubcategory from "./pages/All Categories/AddSubcategory";
@@ -84,13 +86,21 @@ import AllCustomers from "./pages/All Categories/AllCustomers";
 import OrderHistory from "./pages/OrderHistory";
 import CollectionDetails from "./pages/Collections/CollectionDetails";
 import AddProductsToCollection from "./pages/Collections/AddProductsToCollection";
+import AddCustomer from "./pages/AddCustomer";
+import HandtagManager from "./pages/HandtagManager";
+import CreateHandtag from "./pages/CreateHandtag";
+import SizeChartManager from "./pages/SizeChartManager.js";
+import CreateSizeChart from "./pages/CreateSizeChart";
+import SizeChartPreview from "./pages/SizeChartPreview";
+import CreateStaff from "./pages/CreateStaff.js";
+import StaffManagement from "./pages/StaffManagement.js";
 
 const App = () => {
   return (
     <Routes>
       {/* Login Route */}
       <Route path="/" element={<Login />} />
-
+      <Route path="/staff-login" element={<StaffLogin/>} />
       <Route element={<PrivateRoute />}>
         {/* Dashboard Layout */}
         <Route path="/dashboard" element={<AdminLayout />}>
@@ -119,6 +129,15 @@ const App = () => {
           <Route
             path="stock-management/audit-history"
             element={<StockAuditHistory />}
+          />
+          <Route path="/dashboard/handtags" element={<HandtagManager />} />
+          <Route
+            path="/dashboard/handtags/create"
+            element={<CreateHandtag />}
+          />
+          <Route
+            path="/dashboard/handtags/edit/:id"
+            element={<CreateHandtag />}
           />
           <Route path="/dashboard/categories" element={<Categories />} />
           <Route
@@ -154,6 +173,20 @@ const App = () => {
           <Route path="products/brands" element={<ProductBrands />} />
           <Route path="products/reviews" element={<ProductReviews />} />
 
+          <Route path="/dashboard/size-charts" element={<SizeChartManager />} />
+          <Route
+            path="/dashboard/size-charts/create"
+            element={<CreateSizeChart />}
+          />
+          <Route
+            path="/dashboard/size-charts/edit/:id"
+            element={<CreateSizeChart />}
+          />
+          <Route
+            path="/dashboard/size-charts/preview/:id"
+            element={<SizeChartPreview />}
+          />
+
           <Route path="collections" element={<CollectionManager />} />
           <Route
             path="collections/products/:collectionId"
@@ -187,6 +220,16 @@ const App = () => {
 
           <Route path="customers" element={<AllCustomers />} />
           <Route path="customers/:id" element={<SingleCustomer />} />
+          <Route path="/dashboard/customers/create" element={<AddCustomer />} />
+          <Route path="/dashboard/designers/:id" element={<SingleDesigner />} />
+          <Route
+            path="/dashboard/designers/edit/:id"
+            element={<EditDesigner />}
+          />
+          <Route
+            path="/dashboard/customers/edit/:id"
+            element={<AddCustomer />}
+          />
 
           <Route path="orders" element={<AllOrders title="All Orders" />} />
           <Route
@@ -293,6 +336,18 @@ const App = () => {
           <Route
             path="/dashboard/shipping-orders"
             element={<ShippingOrders />}
+          />
+          <Route
+            path="/dashboard/staff/create"
+            element={<CreateStaff />}
+          />
+          <Route
+            path="/dashboard/staff/edit/:id"
+            element={<CreateStaff />}
+          />
+          <Route
+            path="/dashboard/staff"
+            element={<StaffManagement/>}
           />
           <Route path="/dashboard/tracking" element={<Tracking />} />
           <Route path="content" element={<WebsiteContentManagement />} />

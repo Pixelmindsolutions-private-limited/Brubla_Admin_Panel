@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, LogIn, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, LogIn, Mail, Lock, UserCog } from "lucide-react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import logo from "../assets/logo.png";
-import { API_BASE, setAuth } from "../config";
+import { API_BASE, getStaffLandingPath, setAuth } from "../config";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -12,6 +12,9 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPass, setShowPass] = useState(false);
+
+  // 🆕 Role toggle: "admin" | "staff"
+  const [role, setRole] = useState("admin");
 
   const navigate = useNavigate();
 
@@ -37,34 +40,80 @@ const Login = () => {
       setLoading(true);
       setError("");
 
+      // 🆕 Choose endpoint based on role
+      const endpoint =
+        role === "staff" ? `${API_BASE}/staff/login` : `${API_BASE}/login`;
+
       const response = await axios.post(
-        `${API_BASE}/login`,
+        endpoint,
         { email: email.trim(), password },
         { headers: { "Content-Type": "application/json" } }
       );
 
-      console.log("🔐 LOGIN RESPONSE:", response.data);
+      console.log(`🔐 ${role.toUpperCase()} LOGIN RESPONSE:`, response.data);
 
       const data = response.data;
-      const token =
-        typeof data?.token === "string"
-          ? data.token
-          : data?.token?.value || data?.token?.token || data?.accessToken;
 
-      if (data?.success === true && token) {
-        setAuth({ token, admin: data.admin });
-        console.log("✅ Token saved:", token.slice(0, 25) + "...");
+      // ============ STAFF LOGIN ============
+      if (role === "staff") {
+        if (data?.success === true && data?.data?.token) {
+          const { token, staff } = data.data;
 
-        showAlert(
-          "success",
-          "Welcome Admin!",
-          data.message || "Login successful. Redirecting...",
-          1500
-        );
+          // Check if staff is active
+          if (staff?.isActive === false) {
+            setError("Your account has been deactivated. Contact admin.");
+            return;
+          }
 
-        setTimeout(() => navigate("/dashboard"), 1500);
-      } else {
-        setError(data?.message || "Invalid credentials. Please try again.");
+          // Save staff auth in localStorage
+          localStorage.removeItem("adminToken");
+          localStorage.removeItem("token");
+          localStorage.removeItem("admin");
+          sessionStorage.removeItem("adminToken");
+          localStorage.setItem("staffToken", token);
+          localStorage.setItem("staffUser", JSON.stringify(staff));
+          localStorage.setItem(
+            "staffPermissions",
+            JSON.stringify(staff.permissions || [])
+          );
+
+          console.log("✅ Staff token saved:", token.slice(0, 25) + "...");
+
+          showAlert(
+            "success",
+            "Welcome Staff!",
+            `Logged in as ${staff.name}`,
+            1500
+          );
+
+          const staffPath = getStaffLandingPath(staff);
+          setTimeout(() => navigate(staffPath, { replace: true }), 1500);
+        } else {
+          setError(data?.message || "Invalid staff credentials");
+        }
+      }
+      // ============ ADMIN LOGIN (existing) ============
+      else {
+        const token =
+          typeof data?.token === "string"
+            ? data.token
+            : data?.token?.value || data?.token?.token || data?.accessToken;
+
+        if (data?.success === true && token) {
+          setAuth({ token, admin: data.admin });
+          console.log("✅ Admin token saved:", token.slice(0, 25) + "...");
+
+          showAlert(
+            "success",
+            "Welcome Admin!",
+            data.message || "Login successful. Redirecting...",
+            1500
+          );
+
+          setTimeout(() => navigate("/dashboard"), 1500);
+        } else {
+          setError(data?.message || "Invalid credentials. Please try again.");
+        }
       }
     } catch (err) {
       console.error("❌ Login error:", err);
@@ -127,10 +176,46 @@ const Login = () => {
           style={{ background: "rgba(7, 18, 54, 0.85)" }}
         >
           <div className="mb-8">
-            <h2 className="text-3xl font-black text-white">Welcome Back 👋</h2>
+            <h2 className="text-3xl font-black text-white">
+              {role === "staff" ? "Staff Login 👤" : "Welcome Back 👋"}
+            </h2>
             <p className="text-[#94A3B8] text-sm mt-1">
-              Sign in to manage your fashion store
+              {role === "staff"
+                ? "Sign in with your staff credentials"
+                : "Sign in to manage your fashion store"}
             </p>
+          </div>
+
+          {/* 🆕 ROLE TOGGLE */}
+          <div className="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-white/5 border border-white/10 mb-7">
+            <button
+              type="button"
+              onClick={() => {
+                setRole("admin");
+                setError("");
+              }}
+              className={`py-2.5 rounded-xl text-sm font-bold transition-all ${
+                role === "admin"
+                  ? "bg-gradient-to-r from-[#C026D3] to-[#2563EB] text-white shadow-lg"
+                  : "text-[#94A3B8] hover:text-white"
+              }`}
+            >
+              Admin
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setRole("staff");
+                setError("");
+              }}
+              className={`py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${
+                role === "staff"
+                  ? "bg-gradient-to-r from-[#C026D3] to-[#2563EB] text-white shadow-lg"
+                  : "text-[#94A3B8] hover:text-white"
+              }`}
+            >
+              <UserCog size={14} /> Staff
+            </button>
           </div>
 
           <div className="h-px bg-white/10 mb-7" />
@@ -148,7 +233,11 @@ const Login = () => {
                 />
                 <input
                   type="email"
-                  placeholder="admin@example.com"
+                  placeholder={
+                    role === "staff"
+                      ? "staff@example.com"
+                      : "admin@example.com"
+                  }
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   autoComplete="email"
@@ -215,20 +304,22 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Demo hint */}
-            <div
-              className="bg-white/5 rounded-2xl p-3 cursor-pointer hover:bg-white/10 transition-colors"
-              onClick={fillDemoCredentials}
-            >
-              <p className="text-xs text-[#94A3B8] text-center">
-                Demo:{" "}
-                <span className="text-[#C026D3]">admin@example.com</span> /{" "}
-                <span className="text-[#2563EB]">admin123</span>
-                <span className="block text-[10px] text-[#64748B] mt-1">
-                  Click to auto-fill
-                </span>
-              </p>
-            </div>
+            {/* Demo hint — only for admin */}
+            {role === "admin" && (
+              <div
+                className="bg-white/5 rounded-2xl p-3 cursor-pointer hover:bg-white/10 transition-colors"
+                onClick={fillDemoCredentials}
+              >
+                <p className="text-xs text-[#94A3B8] text-center">
+                  Demo:{" "}
+                  <span className="text-[#C026D3]">admin@example.com</span> /{" "}
+                  <span className="text-[#2563EB]">admin123</span>
+                  <span className="block text-[10px] text-[#64748B] mt-1">
+                    Click to auto-fill
+                  </span>
+                </p>
+              </div>
+            )}
 
             {error && (
               <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-3 text-center">
@@ -260,7 +351,9 @@ const Login = () => {
           </form>
 
           <div className="mt-8 pt-5 border-t border-white/10 flex items-center justify-between">
-            <p className="text-xs text-[#64748B]">Restricted admin access</p>
+            <p className="text-xs text-[#64748B]">
+              {role === "staff" ? "Restricted staff access" : "Restricted admin access"}
+            </p>
             <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-[#C026D3]/10 text-[#C026D3] border border-[#C026D3]/20">
               Fashion v2.4.1
             </span>

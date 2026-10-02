@@ -1,45 +1,22 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import axios from "axios";
 import { Search, ChevronDown, ArrowLeft } from "lucide-react";
 
 const StockAuditHistory = () => {
   const navigate = useNavigate();
-
-  const history = [
-    {
-      id: 1,
-      date: "16 Sep 2026, 02:15 PM",
-      sku: "CSH-001-M",
-      prevStock: 30,
-      change: "+15",
-      final: 45,
-      reason: "Restock",
-      user: "Admin_Bhuvanesh",
-      changeColor: "text-emerald-400",
-    },
-    {
-      id: 2,
-      date: "15 Sep 2026, 11:30 AM",
-      sku: "LSH-004-L",
-      prevStock: 5,
-      change: "-1",
-      final: 4,
-      reason: "Damaged",
-      user: "Staff_Ravi",
-      changeColor: "text-red-400",
-    },
-    {
-      id: 3,
-      date: "14 Sep 2026, 09:45 AM",
-      sku: "PSH-012-S",
-      prevStock: 0,
-      change: "+20",
-      final: 20,
-      reason: "New Purchase",
-      user: "Admin_Bhuvanesh",
-      changeColor: "text-emerald-400",
-    },
-  ];
+  const [params] = useSearchParams();
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const productId = params.get("productId");
+  useEffect(() => {
+    if (!productId) { setError("Product ID is missing from the audit URL."); setLoading(false); return; }
+    axios.get(`http://31.97.228.17:4077/api/admin/products/${productId}/stock-history`, { headers: { Authorization: `Bearer ${sessionStorage.getItem("adminToken") || ""}` } })
+      .then(({ data }) => setHistory(data.data || []))
+      .catch((err) => setError(err.response?.data?.message || "Could not load stock audit history."))
+      .finally(() => setLoading(false));
+  }, [productId]);
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-10 text-white">
@@ -91,15 +68,15 @@ const StockAuditHistory = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {history.map((row) => (
-                <tr key={row.id} className="hover:bg-white/5 transition-colors">
-                  <td className="px-4 py-3 text-sm text-[#94A3B8] whitespace-nowrap">{row.date}</td>
-                  <td className="px-4 py-3 text-sm text-white font-mono">{row.sku}</td>
-                  <td className="px-4 py-3 text-sm text-[#94A3B8]">{row.prevStock}</td>
-                  <td className={`px-4 py-3 text-sm font-semibold ${row.changeColor}`}>{row.change}</td>
-                  <td className="px-4 py-3 text-sm text-white font-semibold">{row.final}</td>
-                  <td className="px-4 py-3 text-sm text-[#94A3B8]">{row.reason}</td>
-                  <td className="px-4 py-3 text-sm text-white">{row.user}</td>
+              {loading ? <tr><td colSpan="7" className="p-8 text-center text-[#94A3B8]">Loading audit history…</td></tr> : error ? <tr><td colSpan="7" className="p-8 text-center text-red-300">{error}</td></tr> : history.length === 0 ? <tr><td colSpan="7" className="p-8 text-center text-[#94A3B8]">No stock history found.</td></tr> : history.map((row) => (
+                <tr key={row._id} className="hover:bg-white/5 transition-colors">
+                  <td className="px-4 py-3 text-sm text-[#94A3B8] whitespace-nowrap">{new Date(row.createdAt).toLocaleString()}</td>
+                  <td className="px-4 py-3 text-sm text-white font-mono">{row.productName} · {row.sku} · {row.color} · {row.size}</td>
+                  <td className="px-4 py-3 text-sm text-[#94A3B8]">{row.previousQuantity}</td>
+                  <td className={`px-4 py-3 text-sm font-semibold ${row.changedQuantity >= 0 ? "text-emerald-400" : "text-red-400"}`}>{row.changedQuantity > 0 ? "+" : ""}{row.changedQuantity}</td>
+                  <td className="px-4 py-3 text-sm text-white font-semibold">{row.newQuantity}</td>
+                  <td className="px-4 py-3 text-sm text-[#94A3B8]">{row.reason || "—"}</td>
+                  <td className="px-4 py-3 text-sm text-white">{row.referenceId || "—"}</td>
                 </tr>
               ))}
             </tbody>

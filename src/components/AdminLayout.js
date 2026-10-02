@@ -1,10 +1,36 @@
 import { useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { getStaffLandingPath, hasStaffPathPermission } from "../config";
 
 const AdminLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const isStaff = Boolean(localStorage.getItem("staffToken"));
+
+  if (isStaff && !hasStaffPathPermission(location.pathname)) {
+    let staff = null;
+    try {
+      staff = JSON.parse(localStorage.getItem("staffUser") || "null");
+    } catch {
+      staff = null;
+    }
+    const landingPath = getStaffLandingPath(staff);
+
+    if (
+      landingPath !== location.pathname &&
+      hasStaffPathPermission(landingPath)
+    ) {
+      return <Navigate to={landingPath} replace />;
+    }
+
+    return (
+      <div className="m-6 rounded-xl border border-white/10 bg-[#071236] p-6 text-white">
+        You do not have permission to view this page.
+      </div>
+    );
+  }
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
