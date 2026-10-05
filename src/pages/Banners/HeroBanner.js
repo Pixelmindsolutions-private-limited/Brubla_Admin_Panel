@@ -28,7 +28,9 @@ import {
     ArrowUp,
     ArrowDown,
     Globe,
-    Edit
+    Edit,
+    Monitor,
+    Smartphone
 } from "lucide-react";
 import {
     DragDropContext,
@@ -50,7 +52,8 @@ const HeroBanners = () => {
         url: "",
         redirectUrl: "", // This will map to `redirectionLink` in the API
         order: 0,
-        isActive: true
+        isActive: true,
+        deviceType: "desktop"
     });
     const [uploadFile, setUploadFile] = useState(null);
     const [uploadPreview, setUploadPreview] = useState(null);
@@ -169,6 +172,7 @@ const HeroBanners = () => {
         submitData.append("order", formData.order.toString());
         // Send redirectionLink (backend expects this field)
         submitData.append("redirectionLink", formData.redirectUrl.trim());
+        submitData.append("deviceType", formData.deviceType);
 
         if (formData.type === 'youtube' || formData.type === 'link') {
             submitData.append("url", formData.url);
@@ -395,7 +399,8 @@ const HeroBanners = () => {
             url: "",
             redirectUrl: "",
             order: heroItems.length,
-            isActive: true
+            isActive: true,
+            deviceType: "desktop"
         });
         setUploadFile(null);
         setUploadPreview(null);
@@ -409,6 +414,7 @@ const HeroBanners = () => {
             redirectUrl: item.redirectionLink || "", // Read from redirectionLink
             order: item.order ?? 0,
             isActive: item.isActive !== false,
+            deviceType: item.deviceType || "desktop",
         });
         setUploadFile(null);
         setUploadPreview(item.type === "image" || item.type === "video" ? item.url : null);
@@ -728,6 +734,44 @@ const HeroBanners = () => {
                         </div>
 
                         <div className="p-6 space-y-5">
+                            {/* Device Type Selection */}
+                            <div>
+                                <label className="block text-sm font-semibold text-white mb-3">
+                                    Device Type
+                                </label>
+                                <div className="grid grid-cols-2 gap-3">
+                                    {[
+                                        { value: 'desktop', label: 'Desktop', icon: Monitor },
+                                        { value: 'mobile', label: 'Mobile', icon: Smartphone }
+                                    ].map((device) => (
+                                        <button
+                                            key={device.value}
+                                            type="button"
+                                            onClick={() =>
+                                                setFormData(prev => ({ ...prev, deviceType: device.value }))
+                                            }
+                                            className={`p-4 rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${formData.deviceType === device.value
+                                                    ? 'border-[#C026D3] bg-[#C026D3]/10'
+                                                    : 'border-white/10 hover:border-white/20'
+                                                }`}
+                                        >
+                                            <device.icon
+                                                size={20}
+                                                className={
+                                                    formData.deviceType === device.value
+                                                        ? 'text-[#C026D3]'
+                                                        : 'text-[#94A3B8]'
+                                                }
+                                            />
+                                            <p className="text-white text-sm font-medium">{device.label}</p>
+                                        </button>
+                                    ))}
+                                </div>
+                                <p className="text-[#94A3B8] text-xs mt-2">
+                                    This banner will only be shown on the selected device type.
+                                </p>
+                            </div>
+
                             {/* Media Type Selection */}
                             <div>
                                 <label className="block text-sm font-semibold text-white mb-3">

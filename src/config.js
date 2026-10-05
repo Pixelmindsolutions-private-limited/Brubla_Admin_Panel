@@ -236,6 +236,7 @@ export const STAFF_PERMISSION_GROUPS = [
   {
     name: "Other Pages",
     routes: [
+      { name: "Contact Us", path: "/dashboard/contact-us" },
       { name: "Reports", path: "/dashboard/reports" },
       { name: "Notifications", path: "/dashboard/notifications" },
       { name: "Staff Management", path: "/dashboard/staff" },

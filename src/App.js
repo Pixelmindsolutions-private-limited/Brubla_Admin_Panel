@@ -94,13 +94,18 @@ import CreateSizeChart from "./pages/CreateSizeChart";
 import SizeChartPreview from "./pages/SizeChartPreview";
 import CreateStaff from "./pages/CreateStaff.js";
 import StaffManagement from "./pages/StaffManagement.js";
+import ContactDetails from "./pages/ContactDetails.js";
+import ExclusiveSection from "./pages/ExclusiveSection.js";
+import PhilosophySection from "./pages/PhilosophySection.js";
+import ContactUs from "./pages/ContactUs.js";
+import FAQManagement from "./pages/FAQManagement.js";
 
 const App = () => {
   return (
     <Routes>
       {/* Login Route */}
       <Route path="/" element={<Login />} />
-      <Route path="/staff-login" element={<StaffLogin/>} />
+      <Route path="/staff-login" element={<StaffLogin />} />
       <Route element={<PrivateRoute />}>
         {/* Dashboard Layout */}
         <Route path="/dashboard" element={<AdminLayout />}>
@@ -196,6 +201,16 @@ const App = () => {
             path="/dashboard/collections/:id"
             element={<CollectionDetails />}
           />
+          <Route path="/dashboard/philosophy" element={<PhilosophySection />} />
+          <Route
+            path="/dashboard/contact-details"
+            element={<ContactDetails />}
+          />
+          <Route
+            path="/dashboard/exclusive-section"
+            element={<ExclusiveSection />}
+          />
+          <Route path="/dashboard/contact-us" element={<ContactUs />} />
           <Route
             path="/dashboard/collections/:id/add-products"
             element={<AddProductsToCollection />}
@@ -208,7 +223,11 @@ const App = () => {
             path="collections/homepage"
             element={<HomepageCollections />}
           />
-
+              <Route
+            path="dashboard/faq"
+            element={<FAQManagement/>}
+          />
+          
           <Route path="login-banners" element={<LoginBanners />} />
           <Route path="hero-banners" element={<HeroBanners />} />
           <Route path="ad-banners" element={<AdBanners />} />
@@ -337,18 +356,9 @@ const App = () => {
             path="/dashboard/shipping-orders"
             element={<ShippingOrders />}
           />
-          <Route
-            path="/dashboard/staff/create"
-            element={<CreateStaff />}
-          />
-          <Route
-            path="/dashboard/staff/edit/:id"
-            element={<CreateStaff />}
-          />
-          <Route
-            path="/dashboard/staff"
-            element={<StaffManagement/>}
-          />
+          <Route path="/dashboard/staff/create" element={<CreateStaff />} />
+          <Route path="/dashboard/staff/edit/:id" element={<CreateStaff />} />
+          <Route path="/dashboard/staff" element={<StaffManagement />} />
           <Route path="/dashboard/tracking" element={<Tracking />} />
           <Route path="content" element={<WebsiteContentManagement />} />
           <Route path="reports" element={<ReportsAnalytics />} />

@@ -50,9 +50,7 @@ const navItems = [
     to: "/dashboard/users",
     label: "Users",
     icon: Users,
-    children: [
-      { to: "/dashboard/users", label: "All Users", icon: List },
-    ],
+    children: [{ to: "/dashboard/users", label: "All Users", icon: List }],
   },
   {
     to: "/dashboard/staff",
@@ -60,7 +58,11 @@ const navItems = [
     icon: Users,
     children: [
       { to: "/dashboard/staff", label: "All Staff", icon: List },
-      { to: "/dashboard/staff/create", label: "Create Staff", icon: PlusCircle },
+      {
+        to: "/dashboard/staff/create",
+        label: "Create Staff",
+        icon: PlusCircle,
+      },
     ],
   },
   {
@@ -127,6 +129,18 @@ const navItems = [
     ],
   },
   {
+    to: "/dashboard/philosophy",
+    label: "Philosophy",
+    icon: ShieldCheck,
+    children: [
+      {
+        to: "/dashboard/philosophy",
+        label: "Philosophy Section",
+        icon: ShieldCheck,
+      },
+    ],
+  },
+  {
     to: "/dashboard/categories",
     label: "All Categories",
     icon: Warehouse,
@@ -147,6 +161,18 @@ const navItems = [
         to: "/dashboard/customers",
         label: "All Customers",
         icon: List,
+      },
+    ],
+  },
+  {
+    to: "/dashboard/contact-us",
+    label: "Contact Us",
+    icon: AlertCircle,
+    children: [
+      {
+        to: "/dashboard/contact-us",
+        label: "Contact Us",
+        icon: AlertCircle,
       },
     ],
   },
@@ -209,7 +235,7 @@ const navItems = [
     ],
   },
   {
-    to: "/dashboard/content",
+    to: "/dashboard/hero-banners",
     label: "Website Content",
     icon: ImagesIcon,
     children: [
@@ -226,6 +252,30 @@ const navItems = [
     ],
   },
   {
+    to: "/dashboard/contact-details",
+    label: "Contact Details",
+    icon: AlertCircle,
+    children: [
+      {
+        to: "/dashboard/contact-details",
+        label: "Contact Details",
+        icon: AlertCircle,
+      },
+    ],
+  },
+  {
+    to: "/dashboard/exclusive-section",
+    label: "Exclusive Section",
+    icon: Star,
+    children: [
+      {
+        to: "/dashboard/exclusive-section",
+        label: "Exclusive Section",
+        icon: Star,
+      },
+    ],
+  },
+  {
     to: "/dashboard/collections",
     label: "Collections",
     icon: BookMarked,
@@ -235,6 +285,8 @@ const navItems = [
         label: "All Collections",
         icon: List,
       },
+      
+     
     ],
   },
   {
@@ -254,28 +306,40 @@ const navItems = [
       },
     ],
   },
-{
-  to: "/dashboard/stock-management",
-  label: "Stock Management",
-  icon: Boxes,
-  children: [
-    {
-      to: "/dashboard/stock-management",
-      label: "Stock Management",
-      icon: Boxes,
-    },
-    {
-      to: "/dashboard/stock-adjustment",
-      label: "Stock Adjustment",
-      icon: RefreshCw,
-    },
-    {
-      to: "/dashboard/stock-management/audit-history",
-      label: "Audit History",
-      icon: CheckCircle,
-    },
-  ],
-},
+  {
+    to: "/dashboard/stock-management",
+    label: "Stock Management",
+    icon: Boxes,
+    children: [
+      {
+        to: "/dashboard/stock-management",
+        label: "Stock Management",
+        icon: Boxes,
+      },
+      {
+        to: "/dashboard/stock-adjustment",
+        label: "Stock Adjustment",
+        icon: RefreshCw,
+      },
+      {
+        to: "/dashboard/stock-management/audit-history",
+        label: "Audit History",
+        icon: CheckCircle,
+      },
+    ],
+  },
+  {
+    to: "dashboard/faq",
+    label: "FAQ Management",
+    icon: BookMarked,
+    children: [
+      {
+        to: "dashboard/faq", 
+        label: "All FAQs",
+        icon: List,
+      },
+    ],
+  },
   {
     to: "/dashboard/reports",
     label: "Reports",
@@ -289,7 +353,7 @@ const navItems = [
     ],
   },
   {
-    to:"/dashboard/handtags",
+    to: "/dashboard/handtags",
     label: "Hash Tags",
     icon: Tag,
     children: [
@@ -472,7 +536,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           }
 
           const children = item.children.filter((child) =>
-            hasStaffPathPermission(child.to)
+            hasStaffPathPermission(child.to),
           );
           if (!children.length && !hasStaffPathPermission(item.to)) {
             return null;
@@ -530,9 +594,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
       {/* Logo */}
       <div
         className={`flex items-center flex-shrink-0 border-b border-white/10 ${
-          isCollapsed
-            ? "justify-center p-4"
-            : "justify-between px-5 py-[18px]"
+          isCollapsed ? "justify-center p-4" : "justify-between px-5 py-[18px]"
         }`}
       >
         {!isCollapsed && (
@@ -573,11 +635,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           className="hidden md:flex items-center justify-center w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 transition-colors flex-shrink-0 text-white hover:scale-110"
           title={isCollapsed ? "Expand" : "Collapse"}
         >
-          {isCollapsed ? (
-            <ChevronRight size={13} />
-          ) : (
-            <ChevronLeft size={13} />
-          )}
+          {isCollapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
         </button>
       </div>
 
@@ -612,7 +670,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
               <item.icon size={18} className="flex-shrink-0" />
               {!isCollapsed && <span>{item.label}</span>}
             </NavLink>
-          )
+          ),
         )}
 
         {/* Logout button — uses isCollapsed, not outer collapsed */}
