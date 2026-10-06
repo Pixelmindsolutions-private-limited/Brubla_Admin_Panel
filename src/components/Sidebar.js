@@ -153,6 +153,18 @@ const navItems = [
     ],
   },
   {
+    to: "/dashboard/footer",
+    label: "Footer Management",
+    icon: List,
+    children: [
+      {
+        to: "/dashboard/footer",
+        label: "Footer Management",
+        icon: List,
+      },
+    ],
+  },
+  {
     to: "/dashboard/customers",
     label: "Customers",
     icon: UserCircle,
@@ -232,6 +244,23 @@ const navItems = [
         label: "Delivery Partners",
         icon: Truck,
       },
+    ],
+  },
+  {
+    to: "/dashboard/about",
+    label: "About Us",
+    icon: AlertCircle,
+    children: [
+      { to: "/dashboard/about/hero", label: "Hero", icon: AlertCircle },
+      { to: "/dashboard/about/marquee", label: "Marquee", icon: AlertCircle },
+      { to: "/dashboard/about/purpose", label: "Our Purpose", icon: AlertCircle },
+      { to: "/dashboard/about/accessibility", label: "Accessibility", icon: AlertCircle },
+      { to: "/dashboard/about/marketplace", label: "Marketplace", icon: AlertCircle },
+      { to: "/dashboard/about/designers", label: "Designers", icon: AlertCircle },
+      { to: "/dashboard/about/vision", label: "Vision", icon: AlertCircle },
+      { to: "/dashboard/about/experience", label: "Experience", icon: AlertCircle },
+      { to: "/dashboard/about/people", label: "People", icon: AlertCircle },
+      { to: "/dashboard/about/future", label: "Future", icon: AlertCircle },
     ],
   },
   {

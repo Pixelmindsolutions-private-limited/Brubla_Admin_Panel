@@ -243,6 +243,14 @@ const AllTransactions = () => {
                 <Calendar size={13} />
                 {formatDateTime(o.createdAt)}
               </p>
+              <div className="mt-2 space-y-1 text-xs text-[#94A3B8]">
+                <p className="break-all">
+                  Payment ID: <span className="text-white">{String(o.paymentId || o.transactionId || o._id || "—")}</span>
+                </p>
+                <p className="break-all">
+                  Order ID: <span className="text-white">{String(o.orderId || "—")}</span>
+                </p>
+              </div>
             </div>
           </div>
 

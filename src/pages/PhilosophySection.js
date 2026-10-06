@@ -42,7 +42,7 @@ const PhilosophySection = () => {
       setLoading(true);
       const token = getToken();
 
-      const res = await axios.get(`${API}/philosophy`, {
+      const res = await axios.get(`http://31.97.228.17:4077/api/homepage/philosophy`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

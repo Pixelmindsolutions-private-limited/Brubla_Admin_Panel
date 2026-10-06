@@ -272,7 +272,7 @@ const CreateSizeChart = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.productId) {
+    if (!isEditMode && !formData.productId) {
       Swal.fire({ title: "Error!", text: "Please select a product", icon: "error", background: "#071236", color: "#FFF" });
       return;
     }

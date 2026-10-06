@@ -116,6 +116,7 @@ const OrderModal = ({ order, onClose }) => {
               <User size={18} className="text-[#C026D3]" /> Customer
             </p>
             <p className="text-sm text-[#94A3B8]">{order.userId?.name}</p>
+            <p className="break-all text-xs text-[#64748B]">Customer ID: {String(order.userId?._id || order.userId || "—")}</p>
             <p className="text-sm text-[#94A3B8]">{order.userId?.email}</p>
             <p className="text-sm text-[#94A3B8]">{order.userId?.mobile}</p>
           </div>
@@ -187,6 +188,7 @@ const OrderModal = ({ order, onClose }) => {
                   />
                 )}
                 <div className="flex-1 min-w-0">
+                  <p className="break-all text-[11px] text-[#64748B]">Product ID: {String(item.productId?._id || item.productId || "—")}</p>
                   {item.productName && (
                     <p className="truncate text-sm font-semibold text-white">
                       {item.productName}

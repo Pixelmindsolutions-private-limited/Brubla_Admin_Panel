@@ -66,7 +66,7 @@ const HeroBanners = () => {
         try {
             setLoading(true);
             const token = getToken();
-            const response = await axios.get(`${API}/homepage/hero`, {
+            const response = await axios.get(`${API}/hero`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -188,8 +188,8 @@ const HeroBanners = () => {
             const response = await axios({
                 method: editingItem ? "put" : "post",
                 url: editingItem
-                    ? `${API}/homepage/hero/${editingItem._id}`
-                    : `${API}/homepage/hero/add`,
+                    ? `${API}/hero/${editingItem._id}`
+                    : `${API}/hero/add`,
                 data: submitData,
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -230,7 +230,7 @@ const HeroBanners = () => {
         try {
             const token = getToken();
             await axios.put(
-                `${API}/homepage/hero/${id}`,
+                `${API}/hero/${id}`,
                 { order: newOrder },
                 {
                     headers: {
@@ -250,7 +250,7 @@ const HeroBanners = () => {
         try {
             const token = getToken();
             const response = await axios.patch(
-                `${API}/homepage/hero/${id}/toggle`,
+                `${API}/hero/${id}/toggle`,
                 {},
                 {
                     headers: {
@@ -302,7 +302,7 @@ const HeroBanners = () => {
         if (result.isConfirmed) {
             try {
                 const token = getToken();
-                await axios.delete(`${API}/homepage/hero/${id}`, {
+                await axios.delete(`${API}/hero/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },

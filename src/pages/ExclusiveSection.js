@@ -25,7 +25,7 @@ const API = "http://31.97.228.17:4077/api/admin";
 const cleanImageUrl = (value) => {
   if (!value) return "";
 
-  // Handle markdown-style: [https://x.com/img.jpg](https://x.com/img.jpg)
+  // Handle markdown-style: [https://x.com/images.jpg](https://x.com/images.jpg)
   const markdownMatch = value.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
 
   if (markdownMatch) {
@@ -55,7 +55,7 @@ const ExclusiveSection = () => {
     tag: "",
     title: "",
     description: "",
-    img: "",
+    images: "",
     redirectionLink: "",
     isActive: true,
   });
@@ -77,16 +77,18 @@ const ExclusiveSection = () => {
       setLoading(true);
       const token = getToken();
 
-      const res = await axios.get(`${API}/exclusive/`, {
+      const res = await axios.get(`http://31.97.228.17:4077/api/homepage/exclusive`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       if (res.data.success) {
         const data = res.data.data || null;
 
-        // ✅ Clean img URL on fetch too (in case backend sends markdown)
-        if (data && data.img) {
-          data.img = cleanImageUrl(data.img);
+        // ✅ Clean images URL on fetch too (in case backend sends markdown)
+        if (data) {
+          data.images = (Array.isArray(data.images) ? data.images : [data.images || data.img])
+            .filter(Boolean)
+            .map(cleanImageUrl);
         }
 
         setExclusive(data);
@@ -126,7 +128,7 @@ const ExclusiveSection = () => {
       tag: "",
       title: "",
       description: "",
-      img: "",
+      images: "",
       redirectionLink: "",
       isActive: true,
     });
@@ -140,18 +142,20 @@ const ExclusiveSection = () => {
     setEditing(true);
 
     // ✅ CLEAN IMAGE URL before storing in form + preview
-    const cleanImg = cleanImageUrl(exclusive?.img);
+    const cleanimages = cleanImageUrl(
+      exclusive?.images?.[0] || exclusive?.images || exclusive?.img,
+    );
 
     setFormData({
       tag: exclusive?.tag || "",
       title: exclusive?.title || "",
       description: exclusive?.description || "",
-      img: cleanImg,
+      images: cleanimages,
       redirectionLink: exclusive?.redirectionLink || "",
       isActive: exclusive?.isActive ?? true,
     });
     setImageFile(null);
-    setImagePreview(cleanImg);
+    setImagePreview(cleanimages);
     setFormErrors({});
     setShowModal(true);
   };
@@ -163,7 +167,7 @@ const ExclusiveSection = () => {
       tag: "",
       title: "",
       description: "",
-      img: "",
+      images: "",
       redirectionLink: "",
       isActive: true,
     });
@@ -198,7 +202,7 @@ const ExclusiveSection = () => {
   const removeImage = () => {
     setImageFile(null);
     setImagePreview("");
-    setFormData((prev) => ({ ...prev, img: "" }));
+    setFormData((prev) => ({ ...prev, images: "" }));
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -209,8 +213,8 @@ const ExclusiveSection = () => {
     if (!formData.title.trim()) errors.title = "Title is required";
     if (!formData.description.trim())
       errors.description = "Description is required";
-    if (!imageFile && !formData.img && !imagePreview)
-      errors.img = "Image is required";
+    if (!imageFile && !formData.images && !imagePreview)
+      errors.images = "Image is required";
     if (!formData.redirectionLink.trim())
       errors.redirectionLink = "Redirection link is required";
 
@@ -237,9 +241,9 @@ const ExclusiveSection = () => {
       // ✅ If new file uploaded → send File
       // ✅ Else → send cleaned existing URL (NOT markdown)
       if (imageFile) {
-        submitData.append("img", imageFile);
-      } else if (formData.img) {
-        submitData.append("img", cleanImageUrl(formData.img));
+        submitData.append("images", imageFile);
+      } else if (formData.images) {
+        submitData.append("images", cleanImageUrl(formData.images));
       }
 
       let res;
@@ -262,9 +266,11 @@ const ExclusiveSection = () => {
       if (res.data.success) {
         const data = res.data.data || null;
 
-        // ✅ Clean the img on response too
-        if (data && data.img) {
-          data.img = cleanImageUrl(data.img);
+        // ✅ Clean the images on response too
+        if (data) {
+          data.images = (Array.isArray(data.images) ? data.images : [data.images || data.img])
+            .filter(Boolean)
+            .map(cleanImageUrl);
         }
 
         setExclusive(data);
@@ -417,10 +423,10 @@ const ExclusiveSection = () => {
         <div className="bg-[#071236]/50 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden">
           {/* Image Section */}
           <div className="relative h-64 md:h-80 bg-black/30">
-            {exclusive.img ? (
+            {exclusive.images?.[0] ? (
               <img
                 // ✅ CLEAN URL before rendering
-                src={cleanImageUrl(exclusive.img)}
+                src={cleanImageUrl(exclusive.images[0])}
                 alt={exclusive.title || "Exclusive"}
                 className="w-full h-full object-cover"
                 onError={(e) => {
@@ -581,9 +587,9 @@ const ExclusiveSection = () => {
                   </label>
                 )}
 
-                {formErrors.img && (
+                {formErrors.images && (
                   <p className="text-red-400 text-xs mt-1">
-                    {formErrors.img}
+                    {formErrors.images}
                   </p>
                 )}
               </div>

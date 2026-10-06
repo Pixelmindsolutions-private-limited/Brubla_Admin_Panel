@@ -99,6 +99,18 @@ import ExclusiveSection from "./pages/ExclusiveSection.js";
 import PhilosophySection from "./pages/PhilosophySection.js";
 import ContactUs from "./pages/ContactUs.js";
 import FAQManagement from "./pages/FAQManagement.js";
+import AboutManagement from "./pages/AboutManagement.js";
+import HeroPage from "./pages/about-sections/HeroPage";
+import MarqueePage from "./pages/about-sections/MarqueePage";
+import PurposePage from "./pages/about-sections/PurposePage";
+import AccessibilityPage from "./pages/about-sections/AccessibilityPage";
+import MarketplacePage from "./pages/about-sections/MarketplacePage";
+import DesignersPage from "./pages/about-sections/DesignersPage";
+import VisionPage from "./pages/about-sections/VisionPage";
+import ExperiencePage from "./pages/about-sections/ExperiencePage";
+import PeoplePage from "./pages/about-sections/PeoplePage";
+import FuturePage from "./pages/about-sections/FuturePage";
+import FooterManagement from "./pages/FooterManagement.js";
 
 const App = () => {
   return (
@@ -161,6 +173,10 @@ const App = () => {
             path="/dashboard/categories/:id/subcategories/edit/:subId"
             element={<AddSubcategory />}
           />
+           <Route
+            path="/dashboard/footer"
+            element={<FooterManagement/>}
+          />
           <Route
             path="/dashboard/categories/delete/:id"
             element={<DeleteCategoryModal />}
@@ -210,6 +226,28 @@ const App = () => {
             path="/dashboard/exclusive-section"
             element={<ExclusiveSection />}
           />
+          <Route
+            path="/dashboard/about"
+            element={<AboutManagement tabGroup="designers" />}
+          />
+          <Route path="/dashboard/about/hero" element={<HeroPage />} />
+          <Route path="/dashboard/about/marquee" element={<MarqueePage />} />
+          <Route path="/dashboard/about/purpose" element={<PurposePage />} />
+          <Route
+            path="/dashboard/about/connections"
+            element={<Navigate to="/dashboard/about/purpose" replace />}
+          />
+          <Route path="/dashboard/about/accessibility" element={<AccessibilityPage />} />
+          <Route path="/dashboard/about/marketplace" element={<MarketplacePage />} />
+          <Route path="/dashboard/about/designers" element={<DesignersPage />} />
+          <Route
+            path="/dashboard/about/tailors"
+            element={<Navigate to="/dashboard/about/designers" replace />}
+          />
+          <Route path="/dashboard/about/vision" element={<VisionPage />} />
+          <Route path="/dashboard/about/experience" element={<ExperiencePage />} />
+          <Route path="/dashboard/about/people" element={<PeoplePage />} />
+          <Route path="/dashboard/about/future" element={<FuturePage />} />
           <Route path="/dashboard/contact-us" element={<ContactUs />} />
           <Route
             path="/dashboard/collections/:id/add-products"
