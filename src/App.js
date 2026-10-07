@@ -258,7 +258,7 @@ const App = () => {
             element={<CollectionProducts />}
           />
           <Route
-            path="collections/homepage"
+            path="/dashboard/collections/homepage"
             element={<HomepageCollections />}
           />
               <Route
@@ -270,10 +270,10 @@ const App = () => {
           <Route path="hero-banners" element={<HeroBanners />} />
           <Route path="ad-banners" element={<AdBanners />} />
 
-          <Route path="inventory/available" element={<AvailableStock />} />
-          <Route path="inventory/low-stock" element={<LowStock />} />
-          <Route path="inventory/out-of-stock" element={<OutOfStock />} />
-          <Route path="inventory/updates" element={<StockUpdates />} />
+          <Route path="/dashboard/inventory/available" element={<AvailableStock />} />
+          <Route path="/dashboard/inventory/low-stock" element={<LowStock />} />
+          <Route path="/dashboard/inventory/out-of-stock" element={<OutOfStock />} />
+          <Route path="/dashboard/inventory/updates" element={<StockUpdates />} />
 
           <Route path="customers" element={<AllCustomers />} />
           <Route path="customers/:id" element={<SingleCustomer />} />

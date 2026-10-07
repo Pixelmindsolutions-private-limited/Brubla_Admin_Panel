@@ -13,7 +13,7 @@ import {
   Star,
   ChevronLeft,
   ChevronRight,
-  ImagesIcon,
+  Images,
   BookMarked,
   Bell,
   LogOut,
@@ -125,6 +125,11 @@ const navItems = [
         to: "/dashboard/orders/cancelled",
         label: "Cancelled Orders",
         icon: XCircle,
+      },
+      {
+        to: "/dashboard/tracking",
+        label: "Tracking",
+        icon: Truck,
       },
     ],
   },
@@ -244,6 +249,45 @@ const navItems = [
         label: "Delivery Partners",
         icon: Truck,
       },
+      {
+        to: "/dashboard/shipping-orders",
+        label: "Shipping Orders",
+        icon: Truck,
+      },
+      {
+        to: "/dashboard/deliverystatus",
+        label: "Delivery Status",
+        icon: Truck,
+      },
+      {
+        to: "/dashboard/tracking",
+        label: "Tracking",
+        icon: Truck,
+      },
+    ],
+  },
+  {
+    to: "/dashboard/promo-codes",
+    label: "Promo Codes",
+    icon: FaPercentage,
+    children: [
+      {
+        to: "/dashboard/promo-codes",
+        label: "All Promo Codes",
+        icon: FaPercentage,
+      },
+    ],
+  },
+  {
+    to: "/dashboard/seasonal-sales",
+    label: "Seasonal Sales",
+    icon: FaShoppingBag,
+    children: [
+      {
+        to: "/dashboard/seasonal-sales",
+        label: "All Seasonal Sales",
+        icon: FaShoppingBag,
+      },
     ],
   },
   {
@@ -253,12 +297,32 @@ const navItems = [
     children: [
       { to: "/dashboard/about/hero", label: "Hero", icon: AlertCircle },
       { to: "/dashboard/about/marquee", label: "Marquee", icon: AlertCircle },
-      { to: "/dashboard/about/purpose", label: "Our Purpose", icon: AlertCircle },
-      { to: "/dashboard/about/accessibility", label: "Accessibility", icon: AlertCircle },
-      { to: "/dashboard/about/marketplace", label: "Marketplace", icon: AlertCircle },
-      { to: "/dashboard/about/designers", label: "Designers", icon: AlertCircle },
+      {
+        to: "/dashboard/about/purpose",
+        label: "Our Purpose",
+        icon: AlertCircle,
+      },
+      {
+        to: "/dashboard/about/accessibility",
+        label: "Accessibility",
+        icon: AlertCircle,
+      },
+      {
+        to: "/dashboard/about/marketplace",
+        label: "Marketplace",
+        icon: AlertCircle,
+      },
+      {
+        to: "/dashboard/about/designers",
+        label: "Designers",
+        icon: AlertCircle,
+      },
       { to: "/dashboard/about/vision", label: "Vision", icon: AlertCircle },
-      { to: "/dashboard/about/experience", label: "Experience", icon: AlertCircle },
+      {
+        to: "/dashboard/about/experience",
+        label: "Experience",
+        icon: AlertCircle,
+      },
       { to: "/dashboard/about/people", label: "People", icon: AlertCircle },
       { to: "/dashboard/about/future", label: "Future", icon: AlertCircle },
     ],
@@ -266,7 +330,7 @@ const navItems = [
   {
     to: "/dashboard/hero-banners",
     label: "Website Content",
-    icon: ImagesIcon,
+    icon: Images,
     children: [
       {
         to: "/dashboard/hero-banners",
@@ -314,8 +378,11 @@ const navItems = [
         label: "All Collections",
         icon: List,
       },
-      
-     
+      {
+        to: "/dashboard/collections/homepage",
+        label: "Homepage Collections",
+        icon: List,
+      },
     ],
   },
   {
@@ -333,6 +400,50 @@ const navItems = [
         label: "Pending Designers",
         icon: PiEmpty,
       },
+      {
+        to: "designers-products",
+        label: "Designers Products",
+        icon: PiEmpty,
+      },
+      {
+        to: "pending-designers-products",
+        label: "Pending Designers Products",
+        icon: PiEmpty,
+      },
+    ],
+  },
+  {
+    to: "/dashboard/inventory/available",
+    label: "Inventory",
+    icon: Boxes,
+    children: [
+      {
+        to: "/dashboard/inventory/available",
+        label: "Available Inventory",
+        icon: CheckCircle,
+      },
+      {
+        to: "/dashboard/inventory/low-stock",
+        label: "Low Stock",
+        icon: AlertCircle,
+      },
+      {
+        to: "/dashboard/inventory/out-of-stock",
+        label: "Out of Stock",
+        icon: XCircle,
+      },
+      {
+        to:"/dashboard/inventory/updates",
+        label: "Stock Updates",
+        icon: RefreshCw,
+        children: [
+          {
+            to: "/dashboard/inventory/updates",
+            label: "Stock Updates",
+            icon: RefreshCw,
+          },
+        ],
+      }
     ],
   },
   {
@@ -363,7 +474,7 @@ const navItems = [
     icon: BookMarked,
     children: [
       {
-        to: "dashboard/faq", 
+        to: "dashboard/faq",
         label: "All FAQs",
         icon: List,
       },
